@@ -7,6 +7,7 @@ Rails.application.routes.draw do
       resources :teachers, only: [:index]
       resources :semesters, only: [:index]
       resources :bulletins
+      resources :backgrounds
       resources :books
       resources :past_exams
       resources :events do
