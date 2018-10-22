@@ -1,4 +1,5 @@
 class BackgroundsController < ApplicationController
+  before_action :authenticate_user!, only: [:create, :destroy]
   before_action :set_background, only: [:destroy]
 
   # GET /backgrounds
@@ -11,6 +12,7 @@ class BackgroundsController < ApplicationController
   # POST/backgrounds
   def create
     @background = Background.new(background_params)
+    @background.author_id = current_user.id
 
     if @background.save
       render json: @background, status: :created, location: @background
