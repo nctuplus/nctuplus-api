@@ -59,11 +59,13 @@ ActiveRecord::Schema.define(version: 2018_10_17_051742) do
 
   create_table "course_ratings", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "course_id"
+    t.bigint "user_id"
     t.integer "category"
     t.integer "score"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["course_id"], name: "index_course_ratings_on_course_id"
+    t.index ["user_id"], name: "index_course_ratings_on_user_id"
   end
 
   create_table "courses", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -208,15 +210,6 @@ ActiveRecord::Schema.define(version: 2018_10_17_051742) do
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
-  end
-
-  create_table "users_course_ratings", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.bigint "user_id"
-    t.bigint "course_rating_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["course_rating_id"], name: "index_users_course_ratings_on_course_rating_id"
-    t.index ["user_id"], name: "index_users_course_ratings_on_user_id"
   end
 
   create_table "users_courses", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
