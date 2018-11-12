@@ -12,6 +12,7 @@ class User < ActiveRecord::Base
   has_many :users_courses
   has_many :courses, through: :users_courses
   has_many :course_ratings
+  has_many :comments
   has_many :past_exams, foreign_key: :uploader_id
   has_many :books
   has_many :timetables

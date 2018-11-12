@@ -9,6 +9,7 @@ class Course < ApplicationRecord
   has_many :books_courses
   has_many :books, through: :books_courses
   has_many :ratings, foreign_key: :course_id, class_name: :CourseRating
+  has_many :comments
 
   enum time_slot_code: %I[M N A B C D X E F G H Y I J k L]
 

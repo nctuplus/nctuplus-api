@@ -19,6 +19,7 @@ Rails.application.routes.draw do
         post 'favorite', to: 'courses#favorite', as: :favorite
         delete 'favorite', to: 'courses#remove_favorite', as: :remove_favorite
       end
+      resources :comments
       resources :users, only: [:index]
 
       # 跟已登入 user 相關路由
