@@ -61,6 +61,10 @@ RSpec.describe BackgroundsController, type: :controller do
   end
 
   describe 'DELETE #destroy' do
+    let(:current_user) { FactoryBot.create :user }
+    before(:each) do
+      request.headers.merge! current_user.create_new_auth_token
+    end
     it 'destroys the requested background' do
       background = Background.create! valid_attributes
       expect do
