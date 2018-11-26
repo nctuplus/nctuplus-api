@@ -8,6 +8,7 @@ Rails.application.routes.draw do
       resources :semesters, only: [:index]
       resources :bulletins
       resources :books
+      resources :backgrounds
       resources :past_exams
       resources :events do
         post 'follow', to: 'events#follow', as: :follow
