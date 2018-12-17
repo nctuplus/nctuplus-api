@@ -67,6 +67,8 @@ RSpec.describe BackgroundsController, type: :controller do
     end
     it 'destroys the requested background' do
       background = Background.create! valid_attributes
+      background.author_id = current_user.id
+      background.save
       expect do
         delete :destroy, params: { id: background.to_param }
       end.to change(Background, :count).by(-1)
