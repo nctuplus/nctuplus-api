@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_10_17_051742) do
+ActiveRecord::Schema.define(version: 2018_10_22_121727) do
 
   create_table "books", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name"
@@ -85,6 +85,7 @@ ActiveRecord::Schema.define(version: 2018_10_17_051742) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "semester_id"
+    t.integer "department_id"
     t.index ["last_edit_user_id"], name: "index_courses_on_last_edit_user_id"
     t.index ["permanent_course_id"], name: "index_courses_on_permanent_course_id"
     t.index ["semester_id"], name: "index_courses_on_semester_id"
