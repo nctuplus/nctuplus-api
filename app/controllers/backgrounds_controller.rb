@@ -12,6 +12,7 @@ class BackgroundsController < ApplicationController
   # POST /backgrounds
   def create
     @background = Background.new(background_params)
+    @background.author_id = current_user.id
 
     if @background.save
       render json: @background, status: :created, location: @background
@@ -22,7 +23,11 @@ class BackgroundsController < ApplicationController
 
   # DELETE /backgrounds/:id
   def destroy
-    @background.destroy
+    if current_user.id != @background.author_id
+      render json: { "error": "user doesn't match" }, status: :unauthorized
+    else
+      @background.destroy
+    end
   end
 
   private
