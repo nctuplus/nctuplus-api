@@ -7,7 +7,7 @@ class BooksController < ApplicationController
   def index
     page = params[:page].try(:to_i) || 1
     per_page = params[:per_page].try(:to_i) || 15
-    filters = Book.includes(:courses, :user).ransack(params[:q])
+    filters = Book.where(status: 0).includes(:courses, :user).ransack(params[:q])
     @books = filters.result(distnct: true).page(page).per(per_page)
 
     render json: {
