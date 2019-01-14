@@ -1,13 +1,13 @@
 class BooksController < ApplicationController
   before_action :set_book, only: [:show, :update, :destroy, :status]
-  before_action :authenticate_user!, except: [:index, :show]
+  before_action :authenticate_user!, except: [:index, :show, :latest]
   wrap_parameters Book, format: :json, exclude: []
 
   # GET /books
   def index
     page = params[:page].try(:to_i) || 1
     per_page = params[:per_page].try(:to_i) || 15
-    filters = Book.where(status: 0).includes(:courses, :user).ransack(params[:q])
+    filters = Book.where(sold_at: nil).includes(:courses, :user).ransack(params[:q])
     @books = filters.result(distnct: true).page(page).per(per_page)
 
     render json: {
@@ -51,8 +51,8 @@ class BooksController < ApplicationController
   def status
     if current_user.id != @book.user_id
       render json: { "error": "user doesn't match" }, status: :unauthorized
-    elsif @book.update_attributes(status: params[:status])
-      render json: { id: @book.id, status: @book.status }, status: :ok
+    elsif @book.sold_at.nil?
+      @book.update(sold_at: DateTime.now)
     else
       render json: @book.errors, status: :unprocessable_entity
     end
@@ -65,6 +65,11 @@ class BooksController < ApplicationController
     else
       @book.destroy
     end
+  end
+
+  # GET /books/latest_news
+  def latest
+    render json: Book.latest
   end
 
   private

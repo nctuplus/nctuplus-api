@@ -8,6 +8,31 @@ class Book < ApplicationRecord
 
   validates_numericality_of :price, only_integer: true
 
+  def self.latest
+    rencent_sold_10_books = where
+                            .not(sold_at: nil)
+                            .order('sold_at DESC')
+                            .limit(10)
+                            .map do |book|
+                              { id: book.id,
+                                name: book.name,
+                                status: 1,
+                                time: book.sold_at }
+                            end
+    rencent_10_books = order('created_at DESC')
+                       .limit(10)
+                       .map do |book|
+                         { id: book.id,
+                           name: book.name,
+                           status: 0,
+                           time: book.created_at }
+                       end
+    (rencent_sold_10_books + rencent_10_books)
+      .sort_by! { |book| book[:time] }
+      .reverse!
+      .slice!(0, 10)
+  end
+
   def serializable_hash(options = nil)
     options = options.try(:dup) || {}
 
