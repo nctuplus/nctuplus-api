@@ -178,4 +178,18 @@ RSpec.describe BooksController, type: :controller do
       end.not_to change(Book, :count)
     end
   end
+
+  describe 'PATCH #status' do
+    let(:current_user) { FactoryBot.create :user }
+    before(:each) do
+      request.headers.merge! current_user.create_new_auth_token
+    end
+    it 'update the book to sold' do
+      book = Book.create! valid_attributes
+      book.update_attributes(user: current_user)
+      patch :status, params: { book_id: book.id }, session: valid_session
+      book.reload
+      expect(book.sold_at).not_to be_nil
+    end
+  end
 end

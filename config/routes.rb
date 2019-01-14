@@ -10,6 +10,9 @@ Rails.application.routes.draw do
       resources :backgrounds
       resources :books do
         patch 'status', to: 'books#status', as: :status
+        collection do
+          get 'latest_news', to: 'books#latest', as: :latest
+        end
       end
       resources :past_exams
       resources :events do

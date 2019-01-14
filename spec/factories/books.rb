@@ -13,7 +13,6 @@ FactoryBot.define do
     preview_url { Faker::Internet.url }
     user { create(:user) }
     price { Faker::Number.between(0, 3000) }
-    status { Faker::Number.between(0, 3) }
     view_count { 0 }
     contact_way { Faker::Internet.email }
   end
