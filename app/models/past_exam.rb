@@ -6,8 +6,13 @@ class PastExam < ApplicationRecord
   def serializable_hash(options = nil)
     options = options.try(:dup) || {}
     super({ **options, except: [:uploader_id, :course_id] }).tap do |result|
-      result[:uploader] = uploader
-      result[:course] = course
+      result[:uploader] = uploader.name
+      result[:course] = {
+        id: course.id,
+        name: course.permanent_course.name,
+        semester: course.semester,
+        teachers: course.teachers
+      }
     end
   end
 end
