@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_14_062858) do
+ActiveRecord::Schema.define(version: 2019_01_14_163213) do
 
   create_table "backgrounds", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "cover_image"
@@ -156,7 +156,7 @@ ActiveRecord::Schema.define(version: 2019_01_14_062858) do
 
   create_table "slogans", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.text "title"
-    t.boolean "display"
+    t.boolean "display", default: false
     t.integer "author_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
