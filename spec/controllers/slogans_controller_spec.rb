@@ -55,7 +55,7 @@ RSpec.describe SlogansController, type: :controller do
     end
   end
 
-  describe 'PUT #create' do
+  describe 'PUT #update' do
     before(:each) do
       request.headers.merge! current_user.create_new_auth_token
     end
