@@ -8,6 +8,7 @@ Rails.application.routes.draw do
       resources :semesters, only: [:index]
       resources :bulletins
       resources :backgrounds
+      resources :slogans
       resources :books do
         patch 'status', to: 'books#status', as: :status
         collection do
