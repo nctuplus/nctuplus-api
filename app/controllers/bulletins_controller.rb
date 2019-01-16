@@ -4,7 +4,8 @@ class BulletinsController < ApplicationController
 
   # GET /bulletins
   def index
-    @bulletins = Bulletin.all
+    filters = Bulletin.ransack(params[:q])
+    @bulletins = filters.result(distinct: true)
 
     render json: @bulletins
   end
