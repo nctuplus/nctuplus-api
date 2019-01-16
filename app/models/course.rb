@@ -59,9 +59,7 @@ class Course < ApplicationRecord
       end
 
       result[:time_slots] = convert_time_slots
-
       result[:ratings] = ratings
-
       result[:permanent_course] = permanent_course.serializable_hash_for_course
     end
   end
