@@ -7,7 +7,14 @@ Rails.application.routes.draw do
       resources :teachers, only: [:index]
       resources :semesters, only: [:index]
       resources :bulletins
-      resources :books
+      resources :backgrounds
+      resources :slogans
+      resources :books do
+        patch 'status', to: 'books#status', as: :status
+        collection do
+          get 'latest_news', to: 'books#latest', as: :latest
+        end
+      end
       resources :past_exams
       resources :events do
         post 'follow', to: 'events#follow', as: :follow
