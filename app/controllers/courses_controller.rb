@@ -80,6 +80,16 @@ class CoursesController < ApplicationController
     render json: {}, status: :no_content
   end
 
+  # GET /courses/:id/comments
+  def show_comments
+    #course = Course.includes(:comments).find(:course_id)
+    comments = Comment.where(course_id: params[:course_id])
+    #render json: course_comments[:comments]
+    render json: comments
+    #render json: course[:comments]
+  end
+
+
   private
 
   # Use callbacks to share common setup or constraints between actions.
