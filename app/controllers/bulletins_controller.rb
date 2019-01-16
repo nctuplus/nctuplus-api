@@ -1,5 +1,6 @@
 class BulletinsController < ApplicationController
   before_action :set_bulletin, only: [:show, :update, :destroy]
+  before_action :authenticate_user!, except: [:index, :show]
 
   # GET /bulletins
   def index
@@ -15,10 +16,10 @@ class BulletinsController < ApplicationController
 
   # POST /bulletins
   def create
-    @bulletin = Bulletin.new(bulletin_params)
+    @bulletin = current_user.bulletins.build(bulletin_params)
 
     if @bulletin.save
-      render json: @bulletin, status: :created, location: @bulletin
+      render json: @bulletin, status: :created
     else
       render json: @bulletin.errors, status: :unprocessable_entity
     end
@@ -26,7 +27,9 @@ class BulletinsController < ApplicationController
 
   # PATCH/PUT /bulletins/1
   def update
-    if @bulletin.update(bulletin_params)
+    if current_user.id != @bulletin.author_id
+      render json: { 'error': 'user does not match' }, status: :unauthorized
+    elsif @bulletin.update(bulletin_params)
       render json: @bulletin
     else
       render json: @bulletin.errors, status: :unprocessable_entity
@@ -35,7 +38,11 @@ class BulletinsController < ApplicationController
 
   # DELETE /bulletins/1
   def destroy
-    @bulletin.destroy
+    if current_user.id != @bulletin.author_id
+      render json: { 'error': 'user does not match' }, status: :unauthorized
+    else
+      @bulletin.destroy
+    end
   end
 
   private
@@ -49,7 +56,7 @@ class BulletinsController < ApplicationController
   def bulletin_params
     params.fetch(:bulletin, {})
           .permit(
-            :title, :content, :catrgory,
+            :title, :category,
             :begin_time, :end_time, :author_id
           )
   end

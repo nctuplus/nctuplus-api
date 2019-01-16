@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_14_163213) do
+ActiveRecord::Schema.define(version: 2019_01_15_122100) do
 
   create_table "backgrounds", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "cover_image"
@@ -50,7 +50,6 @@ ActiveRecord::Schema.define(version: 2019_01_14_163213) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "title", default: "untitled", null: false
-    t.string "content"
     t.integer "category"
     t.datetime "begin_time"
     t.datetime "end_time"

@@ -31,6 +31,18 @@ RSpec.describe BulletinsController, type: :controller do
     FactoryBot.attributes_for :bulletin
   end
 
+  let(:invalid_attributes) do
+    FactoryBot.attributes_for :bulletin, title: nil
+  end
+
+  let(:invalid_attributes_with_category_out_of_range) do
+    FactoryBot.attributes_for :bulletin, category: 3
+  end
+
+  let(:current_user) do
+    FactoryBot.create :user
+  end
+
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
   # BulletinsController. Be sure to keep this updated too.
@@ -38,7 +50,7 @@ RSpec.describe BulletinsController, type: :controller do
 
   describe 'GET #index' do
     it 'returns a success response' do
-      bulletin = Bulletin.create! valid_attributes
+      Bulletin.create! valid_attributes
       get :index, params: {}, session: valid_session
       expect(response).to be_successful
     end
@@ -53,49 +65,131 @@ RSpec.describe BulletinsController, type: :controller do
   end
 
   describe 'POST #create' do
+    before(:each) do
+      request.headers.merge! current_user.create_new_auth_token
+    end
+
     context 'with valid params' do
       it 'creates a new Bulletin' do
         expect do
-          post :create, params: { bulletin: valid_attributes }, session: valid_session
+          puts valid_attributes
+          post :create, params: { bulletin: valid_attributes }
+          puts response.body
+          puts response.status
         end.to change(Bulletin, :count).by(1)
       end
 
       it 'renders a JSON response with the new bulletin' do
-        post :create, params: { bulletin: valid_attributes }, session: valid_session
+        puts valid_attributes
+        post :create, params: { bulletin: valid_attributes }
+        puts response.body
         expect(response).to have_http_status(:created)
         expect(response.content_type).to eq('application/json')
-        expect(response.location).to eq(bulletin_url(Bulletin.last))
+      end
+    end
+
+    context 'with invalid params' do
+      it 'doesn not create a new Bulletin' do
+        expect do
+          post :create, params: { bulletin: invalid_attributes }
+        end.to change(Bulletin, :count).by(0)
+      end
+
+      it 'does not create a new Bulletin since category is out of range' do
+        expect do
+          post :create,
+               params: { bulletin: invalid_attributes_with_category_out_of_range }
+        end.to change(Bulletin, :count).by(0)
       end
     end
   end
 
   describe 'PUT #update' do
+    before(:each) do
+      request.headers.merge! current_user.create_new_auth_token
+    end
+
     context 'with valid params' do
       let(:new_attributes) {{ title: :whatever }}
 
       it 'updates the requested bulletin' do
-        bulletin = Bulletin.create! valid_attributes
+        bulletin = current_user.bulletins.create! valid_attributes
         put :update, params: { id: bulletin.to_param, bulletin: new_attributes }, session: valid_session
         bulletin.reload
         expect(bulletin.title).to eq('whatever')
       end
 
       it 'renders a JSON response with the bulletin' do
-        bulletin = Bulletin.create! valid_attributes
+        bulletin = current_user.bulletins.create! valid_attributes
 
         put :update, params: { id: bulletin.to_param, bulletin: valid_attributes }, session: valid_session
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to eq('application/json')
       end
     end
+
+    context 'with invalid_attributes' do
+      it 'does not update the requested bulletin' do
+        bulletin = current_user.bulletins.create! valid_attributes
+        title = bulletin.title
+        put :update, params: { id: bulletin.to_param, bulletin: invalid_attributes }
+        bulletin.reload
+        expect(bulletin.title).to eq(title)
+      end
+
+      it 'does not update the requested bulletin since category is not in the range' do
+      
+      end
+    end
+
+    context 'current user is not the bulletin creator' do
+      it 'does not update the requested bulletin' do
+        bulletin = current_user.bulletins.create! valid_attributes
+        title = bulletin.title
+        bulletin.update(author: FactoryBot.create(:user))
+        put :update, params: { id: bulletin.to_param, bulletin: valid_attributes }
+        bulletin.reload
+        expect(bulletin.title).to eq(title)
+      end
+
+      it 'render JSON response with status unauthorized' do
+        bulletin = current_user.bulletins.create! valid_attributes
+        bulletin.update(author: FactoryBot.create(:user))
+        put :update, params: { id: bulletin.to_param, bulletin: valid_attributes }
+        expect(response).to have_http_status(:unauthorized)
+        expect(response.content_type).to eq('application/json')
+      end
+    end
   end
 
   describe 'DELETE #destroy' do
+    before(:each) do
+      request.headers.merge! current_user.create_new_auth_token
+    end
+
     it 'destroys the requested bulletin' do
-      bulletin = Bulletin.create! valid_attributes
+      bulletin = current_user.bulletins.create! valid_attributes
       expect do
         delete :destroy, params: { id: bulletin.to_param }, session: valid_session
       end.to change(Bulletin, :count).by(-1)
+    end
+
+    context 'current is not the bulletin creator' do
+      it 'does not delete the requested bulletin' do
+        bulletin = current_user.bulletins.create! valid_attributes
+        bulletin.update(author: FactoryBot.create(:user))
+        expect do
+          delete :destroy, params: { id: bulletin.to_param }
+        end.to change(Bulletin, :count).by(0)
+      end
+
+      it 'renders JSON response with status unauthorized' do
+        bulletin = current_user.bulletins.create! valid_attributes
+        bulletin.update(author: FactoryBot.create(:user))
+        delete :destroy, params: { id: bulletin.to_param }
+        expect(response).to have_http_status(:unauthorized)
+        expect(response.content_type).to eq('application/json')
+      end
     end
   end
 end
