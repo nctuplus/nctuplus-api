@@ -16,7 +16,7 @@ end
 100.times { FactoryBot.create :book } unless Book.all.size >= 1000
 100.times { FactoryBot.create :past_exam } unless PastExam.all.size >= 1000
 10.times { FactoryBot.create :event } unless Event.all.size >= 50
-10.times { FactoryBot.create :bulletin } unless Bulletin.all.size >= 50
+30.times { FactoryBot.create :bulletin } unless Bulletin.all.size >= 50
 
 FactoryBot.create :test_user unless User.find_by_name(:test).present?
 FactoryBot.create :admin_user unless User.find_by_name(:admin).present?
