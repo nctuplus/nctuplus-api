@@ -10,7 +10,7 @@ class User < ActiveRecord::Base
   has_many :users_events
   has_many :events, through: :users_events
   has_many :users_courses
-  has_many :backgrounds
+  has_many :backgrounds, foreign_key: :author_id
   has_many :bulletins, foreign_key: :author_id, inverse_of: :author
   has_many :slogans, foreign_key: :author_id, inverse_of: :author
   has_many :courses, through: :users_courses
