@@ -240,7 +240,6 @@ ActiveRecord::Schema.define(version: 2018_11_12_135814) do
     t.index ["user_id"], name: "index_users_events_on_user_id"
   end
 
-  add_foreign_key "books", "users"
   add_foreign_key "courses", "semesters"
   add_foreign_key "departments", "colleges"
   add_foreign_key "events", "users"

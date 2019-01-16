@@ -1,6 +1,6 @@
 class CommentsController < ApplicationController
   before_action :set_comment, only: [:show, :update, :destroy]
-  before_action :authenticate_user, except: [:index, :show]
+  before_action :authenticate_user!, except: [:index, :show]
   def index
     page = params[:page].try(:to_i) || 1
     per_page = params[:per_page].try(:to_i) || 15
@@ -14,11 +14,42 @@ class CommentsController < ApplicationController
       data: @comments
     }
   end
+  def show
+    render json: @comment
+  end
+  # POST /comments
+  def create
+    @comment = current_user.comments.build(comment_params)
+
+    if @comment.save
+      render json: @comment, status: :created, location: @comment
+    else
+      render json: @comment.errors, status: :unprocessable_entity
+    end
+  end
+  # PATCH /comments/:id
+  def update
+    if @comment.user_id != current_user.id
+      render json: @comment.errors, status: :not_permitted
+    end
+    @comment.update_attribute(comment_params)
+    @comment.course_ratings.each do |rating|
+        rating.score = param[:rating][rating.category].to_i
+    end
+    render json: @comment
+  end
+  def destroy
+    if @comment.user_id != current_user.id
+      return render json: @comment.errors, status: :not_permitted
+    else
+      @comment.destroy
+    end
+  end
 private
   def set_comment
-    @cmment = Comment.includes(:courses, :user, :course_ratings).find(params[:id])
+    @comment = Comment.includes(:course, :user, :course_ratings).find(params[:id])
   end
   def comment_params
-    params.fetch(:comment, {}).permit(:title, :content)
+    params.fetch(:comment, {}).permit(:title, :content, :anonymity, :course_id)
   end
 end
