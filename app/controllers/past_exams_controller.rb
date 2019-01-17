@@ -1,5 +1,6 @@
 class PastExamsController < ApplicationController
   before_action :set_past_exam, only: [:show, :update, :destroy]
+  before_action :authenticate_user!, except: [:index]
 
   # GET /past_exams
   def index
@@ -9,7 +10,7 @@ class PastExamsController < ApplicationController
 
     @past_exams = filters
                   .result(distnct: true)
-                  .includes({ course: [:semester, :teachers] }, :uploader)
+                  .includes({ course: [:semester, :teachers, :permanent_course] }, :uploader)
                   .page(page).per(per_page)
 
     render json: {
@@ -20,17 +21,12 @@ class PastExamsController < ApplicationController
     }
   end
 
-  # GET /past_exams/1
-  def show
-    render json: @past_exam
-  end
-
   # POST /past_exams
   def create
-    @past_exam = PastExam.new(past_exam_params)
+    @past_exam = current_user.past_exams.build(past_exam_params)
 
     if @past_exam.save
-      render json: @past_exam, status: :created, location: @past_exam
+      render json: @past_exam, status: :created, location: @past_exam.file_url
     else
       render json: @past_exam.errors, status: :unprocessable_entity
     end
@@ -38,8 +34,10 @@ class PastExamsController < ApplicationController
 
   # PATCH/PUT /past_exams/1
   def update
-    if @past_exam.update(past_exam_params)
-      render json: @past_exam
+    if current_user.id != @past_exam.uploader_id
+      render json: { 'error': 'user does not match' }, status: :unauthorized
+    elsif @past_exam.update(past_exam_params)
+      render json: @past_exam, location: @past_exam.file_url
     else
       render json: @past_exam.errors, status: :unprocessable_entity
     end
@@ -47,7 +45,11 @@ class PastExamsController < ApplicationController
 
   # DELETE /past_exams/1
   def destroy
-    @past_exam.destroy
+    if current_user.id != @past_exam.uploader_id
+      render json: { 'error': 'user does not match' }, status: :unauthorized
+    else
+      @past_exam.destroy
+    end
   end
 
   private

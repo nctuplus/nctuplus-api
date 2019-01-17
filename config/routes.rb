@@ -15,7 +15,7 @@ Rails.application.routes.draw do
           get 'latest_news', to: 'books#latest', as: :latest
         end
       end
-      resources :past_exams
+      resources :past_exams, except: [:show]
       resources :events do
         post 'follow', to: 'events#follow', as: :follow
         delete 'follow', to: 'events#unfollow', as: :unfollow

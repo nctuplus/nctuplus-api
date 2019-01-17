@@ -9,6 +9,6 @@ FactoryBot.define do
       )
     end
     uploader { create(:user) }
-    course { create(:course) }
+    course_id { create(:course).id }
   end
 end
