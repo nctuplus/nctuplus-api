@@ -19,6 +19,7 @@ class User < ActiveRecord::Base
   has_many :past_exams, foreign_key: :uploader_id
   has_many :books
   has_many :timetables
+  has_many :scorses
 
   validates :email, uniqueness: true
   validates :name, length: { maximum: 16, message: '姓名過長(max:16)' }

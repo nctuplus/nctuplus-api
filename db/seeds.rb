@@ -18,6 +18,7 @@ end
 10.times { FactoryBot.create :event } unless Event.all.size >= 50
 30.times { FactoryBot.create :bulletin } unless Bulletin.all.size >= 50
 30.times { FactoryBot.create :background } unless Background.all.size >= 150
+30.times { FactoryBot.create :score } unless Background.all.length >= 100
 
 FactoryBot.create :test_user unless User.find_by_name(:test).present?
 FactoryBot.create :admin_user unless User.find_by_name(:admin).present?
