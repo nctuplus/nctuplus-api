@@ -28,7 +28,7 @@ class SlogansController < ApplicationController
   # PATCH /slogans/1
   def update
     if current_user.id != @slogan.author_id
-      render json: { "error": "user does not match" }, status: :unauthorized
+      render json: { 'error': 'user does not match' }, status: :unauthorized
     elsif @slogan.update(slogan_params)
       render json: @slogan
     else
@@ -39,7 +39,7 @@ class SlogansController < ApplicationController
   # DELETE /slogans/1
   def destroy
     if current_user.id != @slogan.author_id
-      render json: { "error": "user does not match" }, status: :unauthorized
+      render json: { 'error': 'user does not match' }, status: :unauthorized
     else
       @slogan.destroy
     end
