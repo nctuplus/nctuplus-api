@@ -1,6 +1,5 @@
 class Slogan < ApplicationRecord
-  belongs_to :author, class_name: :User, foreign_key: :author_id,
-             inverse_of: :slogans
+  belongs_to :author, class_name: :User, foreign_key: :author_id, inverse_of: :slogans
   validates :display,
             inclusion: { in: [true, false], message: 'Must be boolean value' }
 
