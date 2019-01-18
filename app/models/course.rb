@@ -56,7 +56,7 @@ class Course < ApplicationRecord
     end
   end
 
-  def serializable_hash_for_books
+  def serializable_hash_for_books()
     {}.tap do |result|
       result[:course_id] = id
       result[:course_name] = permanent_course.name
@@ -68,7 +68,7 @@ class Course < ApplicationRecord
     end
   end
 
-  def serializable_hash_for_comments
+  def serializable_hash_for_comments()
     {}.tap do |result|
         result[:course_id] = id
         result[:course_name] = permanent_course.name

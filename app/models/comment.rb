@@ -11,7 +11,7 @@ class Comment < ApplicationRecord
 
       result[:rating] = '000'
       course_ratings.each do |rating|
-          result[:rating][rating] = rating.score.to_s
+          result[:rating][rating.category] = rating.score.to_s
       end
     end
   end
