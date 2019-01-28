@@ -42,7 +42,7 @@ RSpec.describe CoursesController, type: :controller do
 
   describe 'GET #index' do
     it 'returns a success response' do
-      course = Course.create! valid_attributes
+      Course.create! valid_attributes
       get :index, params: {}
       expect(response).to be_successful
     end

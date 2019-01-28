@@ -19,6 +19,11 @@ FactoryBot.define do
     last_edit_user { create(:user) }
     permanent_course { create(:permanent_course) }
     semester { create(:semester) }
+    department { create(:department) }
     view_count { 0 }
+  end
+
+  factory :course_without_department, parent: :course do
+    department { nil }
   end
 end
