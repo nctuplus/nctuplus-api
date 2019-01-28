@@ -18,6 +18,7 @@ Rails.application.routes.draw do
         post 'rating', to: 'courses#rating', as: :rating
         post 'favorite', to: 'courses#favorite', as: :favorite
         delete 'favorite', to: 'courses#remove_favorite', as: :remove_favorite
+        get 'comments', to: 'courses#show_comments', as: :comments
       end
       resources :comments
       resources :users, only: [:index]

@@ -9,7 +9,7 @@ class Course < ApplicationRecord
   has_many :books_courses
   has_many :books, through: :books_courses
   has_many :ratings, foreign_key: :course_id, class_name: :CourseRating
-  has_many :comments
+  has_many :comments, foreign_key: :course_id
 
   enum time_slot_code: %I[M N A B C D X E F G H Y I J k L]
 
@@ -46,7 +46,7 @@ class Course < ApplicationRecord
 
     # relation 的 foreign_key 不需要了直接移除
     excepts = %I[time_slots semester_id permanent_course_id]
-    super({ **options, except: excepts }).tap do |result|
+    super({ **options, except: excepts}).tap do |result|
       result[:time_slots] = convert_time_slots
       # 預設直接引入 relation, 不用在 controller 裡自己加
       result[:semester] = semester
@@ -56,7 +56,7 @@ class Course < ApplicationRecord
     end
   end
 
-  def serializable_hash_for_books
+  def serializable_hash_for_books()
     {}.tap do |result|
       result[:course_id] = id
       result[:course_name] = permanent_course.name
@@ -66,5 +66,17 @@ class Course < ApplicationRecord
         end
       end
     end
+  end
+
+  def serializable_hash_for_comments()
+    {}.tap do |result|
+        result[:course_id] = id
+        result[:course_name] = permanent_course.name
+        result[:teachers] = [].tap do |i|
+            teachers.each do |teacher|
+              i << teacher.serializable_hash_for_books
+            end
+        end
+      end
   end
 end
