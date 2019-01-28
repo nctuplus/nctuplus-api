@@ -16,6 +16,7 @@ end
 100.times { FactoryBot.create :book } unless Book.all.size >= 1000
 100.times { FactoryBot.create :past_exam } unless PastExam.all.size >= 1000
 10.times { FactoryBot.create :event } unless Event.all.size >= 50
+10.times { FactoryBot.create :comment } unless Comment.all.size >= 50
 30.times { FactoryBot.create :bulletin } unless Bulletin.all.size >= 50
 30.times { FactoryBot.create :background } unless Background.all.size >= 150
 30.times { FactoryBot.create :slogan } unless Slogan.all.length >= 150
