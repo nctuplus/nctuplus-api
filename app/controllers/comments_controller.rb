@@ -30,9 +30,9 @@ class CommentsController < ApplicationController
   # PATCH /comments/:id
   def update
     if @comment.user_id != current_user.id
-      render json: @comment.errors, status: :unauthorized
+      render json: @comment.errors, status: :not_permitted
     end
-    @comment.update_attributes(comment_params)
+    @comment.update_attribute(comment_params)
     @comment.course_ratings.each do |rating|
         rating.score = param[:rating][rating.category].to_i
     end
@@ -40,7 +40,7 @@ class CommentsController < ApplicationController
   end
   def destroy
     if @comment.user_id != current_user.id
-      render json: @comment.errors, status: :unauthorized
+      return render json: @comment.errors, status: :not_permitted
     else
       @comment.destroy
     end
