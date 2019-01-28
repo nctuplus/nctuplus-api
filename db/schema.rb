@@ -10,7 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_12_135814) do
+ActiveRecord::Schema.define(version: 2019_01_15_122100) do
+
+  create_table "backgrounds", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "cover_image"
+    t.bigint "author_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["author_id"], name: "index_backgrounds_on_author_id"
+  end
 
   create_table "books", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name"
@@ -21,11 +29,11 @@ ActiveRecord::Schema.define(version: 2018_11_12_135814) do
     t.string "preview_url"
     t.bigint "user_id"
     t.integer "price", default: 0, null: false
-    t.integer "status", default: 0, null: false
     t.integer "view_count", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "contact_way"
+    t.datetime "sold_at"
     t.index ["user_id"], name: "index_books_on_user_id"
   end
 
@@ -42,7 +50,6 @@ ActiveRecord::Schema.define(version: 2018_11_12_135814) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "title", default: "untitled", null: false
-    t.string "content"
     t.integer "category"
     t.datetime "begin_time"
     t.datetime "end_time"
@@ -97,6 +104,7 @@ ActiveRecord::Schema.define(version: 2018_11_12_135814) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "semester_id"
+    t.integer "department_id"
     t.index ["last_edit_user_id"], name: "index_courses_on_last_edit_user_id"
     t.index ["permanent_course_id"], name: "index_courses_on_permanent_course_id"
     t.index ["semester_id"], name: "index_courses_on_semester_id"
@@ -154,6 +162,14 @@ ActiveRecord::Schema.define(version: 2018_11_12_135814) do
   create_table "semesters", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "year"
     t.integer "term"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "slogans", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.text "title"
+    t.boolean "display", default: false
+    t.integer "author_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

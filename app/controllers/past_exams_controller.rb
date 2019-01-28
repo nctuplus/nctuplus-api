@@ -5,9 +5,12 @@ class PastExamsController < ApplicationController
   def index
     page = params[:page].try(:to_i) || 1
     per_page = params[:per_page].try(:to_i) || 25
-    filters = PastExam.includes(:course, :uploader).ransack(params[:q])
+    filters = PastExam.ransack(params[:q])
 
-    @past_exams = filters.result(distnct: true).page(page).per(per_page)
+    @past_exams = filters
+                  .result(distnct: true)
+                  .includes({ course: [:semester, :teachers] }, :uploader)
+                  .page(page).per(per_page)
 
     render json: {
       current_page: page,

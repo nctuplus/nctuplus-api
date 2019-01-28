@@ -31,8 +31,16 @@ RSpec.describe BooksController, type: :controller do
     FactoryBot.attributes_for :book
   end
 
+  let(:valid_attributes_with_courses_id_array) do
+    FactoryBot.attributes_for :book, courses: [ nil ]
+  end
+
   let(:invalid_attributes) do
     FactoryBot.attributes_for :book, price: :a_string
+  end
+
+  let(:invalid_attributes_with_courses_id_array) do
+    FactoryBot.attributes_for :book, price: :a_atring, courses: [ nil ]
   end
 
   # This should return the minimal set of values that should be in the session
@@ -64,12 +72,16 @@ RSpec.describe BooksController, type: :controller do
     context 'with valid params' do
       it 'creates a new Book' do
         expect do
-          post :create, params: { book: valid_attributes }, session: valid_session
+          post :create,
+            params: { book: valid_attributes_with_courses_id_array },
+            session: valid_session
         end.to change(Book, :count).by(1)
       end
 
       it 'renders a JSON response with the new book' do
-        post :create, params: { book: valid_attributes }, session: valid_session
+        post :create,
+          params: { book: valid_attributes_with_courses_id_array },
+          session: valid_session
         expect(response).to have_http_status(:created)
         expect(response.content_type).to eq('application/json')
         expect(response.location).to eq(book_url(Book.last))
@@ -78,7 +90,9 @@ RSpec.describe BooksController, type: :controller do
 
     context 'with invalid params' do
       it 'renders a JSON response with errors for the new book' do
-        post :create, params: { book: invalid_attributes }, session: valid_session
+        post :create,
+          params: { book: invalid_attributes_with_courses_id_array },
+          session: valid_session
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to eq('application/json')
       end
@@ -105,7 +119,10 @@ RSpec.describe BooksController, type: :controller do
       it 'renders a JSON response with the book' do
         book = Book.create! valid_attributes
         book.update_attributes(user: current_user)
-        put :update, params: { id: book.to_param, book: valid_attributes }, session: valid_session
+        put :update,
+          params: { id: book.to_param,
+                    book: valid_attributes_with_courses_id_array },
+          session: valid_session
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to eq('application/json')
       end
@@ -115,7 +132,10 @@ RSpec.describe BooksController, type: :controller do
       it 'renders a JSON response with errors for the book' do
         book = Book.create! valid_attributes
         book.update_attributes(user: current_user)
-        put :update, params: { id: book.to_param, book: invalid_attributes }, session: valid_session
+        put :update,
+          params: { id: book.to_param,
+                    book: invalid_attributes_with_courses_id_array },
+          session: valid_session
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.content_type).to eq('application/json')
       end
@@ -156,6 +176,20 @@ RSpec.describe BooksController, type: :controller do
       expect do
         delete :destroy, params: { id: book.to_param }, session: valid_session
       end.not_to change(Book, :count)
+    end
+  end
+
+  describe 'PATCH #status' do
+    let(:current_user) { FactoryBot.create :user }
+    before(:each) do
+      request.headers.merge! current_user.create_new_auth_token
+    end
+    it 'update the book to sold' do
+      book = Book.create! valid_attributes
+      book.update_attributes(user: current_user)
+      patch :status, params: { book_id: book.id }, session: valid_session
+      book.reload
+      expect(book.sold_at).not_to be_nil
     end
   end
 end

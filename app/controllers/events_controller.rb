@@ -4,9 +4,16 @@ class EventsController < ApplicationController
 
   # GET /events
   def index
-    @events = Event.all
+    page = params[:page].try(:to_i) || 1
+    per_page = params[:per_page].try(:to_i) || 15
+    @events = Event.all.page(page).per(per_page)
 
-    render json: @events
+    render json: {
+      current_page: page,
+      total_pages: @events.total_pages,
+      total_count: @events.total_count,
+      data: @events
+    }
   end
 
   # GET /events/1

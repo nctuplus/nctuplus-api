@@ -1,13 +1,13 @@
 class CoursesController < ApplicationController
-  before_action :set_course, only: [:show, :update, :destroy]
-  before_action :authenticate_user!, only: [:rating]
+  before_action :set_course, only: [:show, :update, :destroy, :past_exams]
+  before_action :authenticate_user!, only: [:rating, :favorite, :remove_favorite]
 
   # GET /courses
   def index
     page = params[:page].try(:to_i) || 1
     per_page = params[:per_page].try(:to_i) || 25
     filters = Course
-              .includes(:semester, :last_edit_user, :permanent_course, :teachers, :ratings)
+              .includes(:semester, :last_edit_user, :permanent_course, :teachers, :ratings, :department)
               .ransack(params[:q])
 
     @courses = filters.result(distnct: true).page(page).per(per_page)
@@ -67,10 +67,12 @@ class CoursesController < ApplicationController
   # POST /courses/:id/favorite
   def favorite
     course_id = params[:course_id]
+    # current_user = 
     user_course = UsersCourse
                   .where(user_id: current_user.id, course_id: course_id)
                   .first_or_create
-    render json: user_course, status: :created
+    #render json: user_course, status: :created
+    render json: {}, status: :created
   end
 
   # DELETE /courses/:id/favorite
@@ -78,6 +80,23 @@ class CoursesController < ApplicationController
     course_id = params[:course_id]
     UsersCourse.where(user_id: current_user.id, course_id: course_id).destroy_all
     render json: {}, status: :no_content
+  end
+  
+  # GET /courses/:id/past_exams
+  def past_exams 
+    page = params[:page].try(:to_i) || 1
+    per_page = params[:per_page].try(:to_i) || 25
+    @past_exams = @course.past_exams.includes(:uploader).page(page).per(per_page)
+    data = []
+    @past_exams.each do |past_exam|
+      data << past_exam.serializable_hash_for_course
+    end
+    render json: {
+      current_page: page,
+      total_pages: @past_exams.total_pages,
+      total_count: @past_exams.total_count,
+      data: data
+    }
   end
 
   # GET /courses/:id/comments
@@ -96,7 +115,7 @@ class CoursesController < ApplicationController
   def set_course
     @course = Course
               .includes(:semester, :last_edit_user, :permanent_course, :teachers, :ratings)
-              .find(params[:id])
+              .find(params[:id] || params[:course_id])
   end
 
   # Only allow a trusted parameter "white list" through.
