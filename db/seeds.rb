@@ -18,6 +18,7 @@ end
 unless Comment.all.length >= 50
   20.times do
     comment = FactoryBot.create :comment
+    [1, 2, 3].sample.times { comment.course.teachers << FactoryBot.create(:teacher) }
     3.times do |i|
       comment.user.course_ratings.create FactoryBot.attributes_for :course_rating, category: i, course: comment.course
     end
