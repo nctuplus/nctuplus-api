@@ -1,9 +1,9 @@
 FactoryBot.define do
   factory :comment do
-    title { "MyString" }
-    content { "MyText" }
-    course_id { 1 }
-    user_id { 1 }
-    anonymity { false }
+    title { Faker::Lorem.sentence }
+    content { Faker::Lorem.paragraph }
+    course { create(:course) }
+    user { create(:user) }
+    anonymity { [false, true].sample }
   end
 end
