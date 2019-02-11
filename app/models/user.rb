@@ -14,11 +14,12 @@ class User < ActiveRecord::Base
   has_many :bulletins, foreign_key: :author_id, inverse_of: :author
   has_many :slogans, foreign_key: :author_id, inverse_of: :author
   has_many :courses, through: :users_courses
-  has_many :users_course_ratings
-  has_many :course_ratings, through: :users_course_ratings
+  has_many :course_ratings
+  has_many :comments
   has_many :past_exams, foreign_key: :uploader_id
   has_many :books
   has_many :timetables
+  has_many :scorses
 
   validates :email, uniqueness: true
   validates :name, length: { maximum: 16, message: '姓名過長(max:16)' }

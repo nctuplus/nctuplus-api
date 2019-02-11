@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_15_122100) do
+ActiveRecord::Schema.define(version: 2019_01_17_065532) do
 
   create_table "backgrounds", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "cover_image"
@@ -64,13 +64,25 @@ ActiveRecord::Schema.define(version: 2019_01_15_122100) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "comments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "title"
+    t.text "content"
+    t.integer "course_id"
+    t.integer "user_id"
+    t.boolean "anonymity"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "course_ratings", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "course_id"
+    t.bigint "user_id"
     t.integer "category"
     t.integer "score"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["course_id"], name: "index_course_ratings_on_course_id"
+    t.index ["user_id"], name: "index_course_ratings_on_user_id"
   end
 
   create_table "courses", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -143,6 +155,14 @@ ActiveRecord::Schema.define(version: 2019_01_15_122100) do
     t.string "name"
     t.string "code"
     t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "scores", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "course_id"
+    t.string "score"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -226,15 +246,6 @@ ActiveRecord::Schema.define(version: 2019_01_15_122100) do
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
   end
 
-  create_table "users_course_ratings", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.bigint "user_id"
-    t.bigint "course_rating_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["course_rating_id"], name: "index_users_course_ratings_on_course_rating_id"
-    t.index ["user_id"], name: "index_users_course_ratings_on_user_id"
-  end
-
   create_table "users_courses", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "user_id"
     t.bigint "course_id"
@@ -253,7 +264,6 @@ ActiveRecord::Schema.define(version: 2019_01_15_122100) do
     t.index ["user_id"], name: "index_users_events_on_user_id"
   end
 
-  add_foreign_key "books", "users"
   add_foreign_key "courses", "semesters"
   add_foreign_key "departments", "colleges"
   add_foreign_key "events", "users"

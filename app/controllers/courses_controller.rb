@@ -67,11 +67,9 @@ class CoursesController < ApplicationController
   # POST /courses/:id/favorite
   def favorite
     course_id = params[:course_id]
-    # current_user = 
-    user_course = UsersCourse
-                  .where(user_id: current_user.id, course_id: course_id)
-                  .first_or_create
-    #render json: user_course, status: :created
+    UsersCourse
+      .where(user_id: current_user.id, course_id: course_id)
+      .first_or_create
     render json: {}, status: :created
   end
 
@@ -81,9 +79,9 @@ class CoursesController < ApplicationController
     UsersCourse.where(user_id: current_user.id, course_id: course_id).destroy_all
     render json: {}, status: :no_content
   end
-  
+
   # GET /courses/:id/past_exams
-  def past_exams 
+  def past_exams
     page = params[:page].try(:to_i) || 1
     per_page = params[:per_page].try(:to_i) || 25
     @past_exams = @course.past_exams.includes(:uploader).page(page).per(per_page)
@@ -97,6 +95,15 @@ class CoursesController < ApplicationController
       total_count: @past_exams.total_count,
       data: data
     }
+  end
+
+  # GET /courses/:id/comments
+  def show_comments
+    # course = Course.includes(:comments).find(:course_id)
+    comments = Comment.where(course_id: params[:course_id])
+    # render json: course_comments[:comments]
+    render json: comments
+    # render json: course[:comments]
   end
 
   private
