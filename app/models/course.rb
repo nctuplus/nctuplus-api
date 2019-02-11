@@ -77,6 +77,16 @@ class Course < ApplicationRecord
     end
   end
 
+  def related_courses
+    courses = Course.includes(:teachers)
+                    .where(permanent_course_id: permanent_course_id)
+    [].tap do |result|
+      courses.each do |c|
+        result.push(c) if (c.teacher_ids - teacher_ids).empty?
+      end
+    end
+  end
+
   def recommend_courses
     courses = Score.where(user_id: Course.find(640).user_ids)
                    .where.not(course_id: id)
