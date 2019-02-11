@@ -10,6 +10,7 @@ class Course < ApplicationRecord
   has_many :books_courses
   has_many :books, through: :books_courses
   has_many :ratings, foreign_key: :course_id, class_name: :CourseRating
+  has_many :comments, foreign_key: :course_id
   has_many :past_exams
   has_many :scores
   enum time_slot_code: %I[M N A B C D X E F G H Y I J k L]
@@ -44,16 +45,15 @@ class Course < ApplicationRecord
   # 重載 json serializer
   def serializable_hash(options = nil)
     options = options.try(:dup) || {}
-    
-    # relation 的 foreign_key 不需要了直接移除
-    #excepts = %I[time_slots semester_id permanent_course_id]
-    onlys = %I[id code credit grade classroom  registration_count registration_limit created_at udpated_at]
-    super({ **options, only: onlys }).tap do |result|
 
+    # relation 的 foreign_key 不需要了直接移除
+    # excepts = %I[time_slots semester_id permanent_course_id]
+    onlys = %I[id code credit grade classroom registration_count registration_limit created_at udpated_at]
+    super({ **options, only: onlys }).tap do |result|
       # 預設直接引入 relation, 不用在 controller 裡自己加
       result[:semester] = semester.serializable_hash_for_course
       result[:department] = department.serializable_hash_for_course
-      
+
       result[:teachers] = []
       teachers.each do |teacher|
         result[:teachers] << teacher.serializable_hash_for_course
@@ -85,5 +85,13 @@ class Course < ApplicationRecord
                    .limit(5)
                    .count.keys
     Course.where(id: courses).all
+  end
+
+  def serializable_hash_for_comments
+    {}.tap do |result|
+      result[:course_id] = id
+      result[:course_name] = permanent_course.name
+      result[:teachers] = teachers.map(&:name)
+    end
   end
 end

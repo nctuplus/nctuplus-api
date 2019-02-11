@@ -8,17 +8,25 @@
 
 unless Course.all.size >= 1000
   100.times do
-    course = FactoryBot.create :course
-    course.ratings << Array.new(rand(5)).map { FactoryBot.create :course_rating }
+    FactoryBot.create :course
   end
 end
 
 100.times { FactoryBot.create :book } unless Book.all.size >= 1000
 100.times { FactoryBot.create :past_exam } unless PastExam.all.size >= 1000
 10.times { FactoryBot.create :event } unless Event.all.size >= 50
+unless Comment.all.length >= 50
+  20.times do
+    comment = FactoryBot.create :comment
+    [1, 2, 3].sample.times { comment.course.teachers << FactoryBot.create(:teacher) }
+    3.times do |i|
+      comment.user.course_ratings.create FactoryBot.attributes_for :course_rating, category: i, course: comment.course
+    end
+  end
+end
 30.times { FactoryBot.create :bulletin } unless Bulletin.all.size >= 50
 30.times { FactoryBot.create :background } unless Background.all.size >= 150
-30.times { FactoryBot.create :score } unless Background.all.length >= 100
+30.times { FactoryBot.create :slogan } unless Slogan.all.length >= 150
 
 FactoryBot.create :test_user unless User.find_by_name(:test).present?
 FactoryBot.create :admin_user unless User.find_by_name(:admin).present?
