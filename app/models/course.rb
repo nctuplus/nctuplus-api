@@ -12,6 +12,7 @@ class Course < ApplicationRecord
   has_many :ratings, foreign_key: :course_id, class_name: :CourseRating
   has_many :comments, foreign_key: :course_id
   has_many :past_exams
+  has_many :scores
   enum time_slot_code: %I[M N A B C D X E F G H Y I J k L]
 
   # 現在 DB 裡用 12bytes(96bit) 的 binary 來保存課程時段
@@ -74,6 +75,16 @@ class Course < ApplicationRecord
         end
       end
     end
+  end
+
+  def recommend_courses
+    courses = Score.where(user_id: Course.find(640).user_ids)
+                   .where.not(course_id: id)
+                   .group(:course_id)
+                   .order('count_all desc')
+                   .limit(5)
+                   .count.keys
+    Course.where(id: courses).all
   end
 
   def serializable_hash_for_comments
