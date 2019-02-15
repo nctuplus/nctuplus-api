@@ -74,7 +74,7 @@ RSpec.describe My::TimetablesController, type: :controller do
 
   describe 'PUT #update' do
     context 'add course' do
-      let(:test_course) { FactoryBot.create(:course) }
+      let(:test_course) { FactoryBot.create(:course_for_rspec_test) }
       let(:action) {{ type: :add, course_id: test_course.id }}
 
       it 'updates the requested timetable' do
@@ -106,7 +106,7 @@ RSpec.describe My::TimetablesController, type: :controller do
       end
     end
     context 'delete course' do
-      let(:test_course) { FactoryBot.create(:course) }
+      let(:test_course) { FactoryBot.create(:course_for_rspec_test) }
       let(:action) {{ type: :delete, course_id: test_course.id }}
 
       before(:each) do
