@@ -13,6 +13,7 @@ class Course < ApplicationRecord
   has_many :comments, foreign_key: :course_id
   has_many :past_exams
   has_many :scores
+  delegate :name, to: :permanent_course, prefix: :permanent_course
   enum time_slot_code: %I[M N A B C D X E F G H Y I J k L]
 
   # 現在 DB 裡用 12bytes(96bit) 的 binary 來保存課程時段
@@ -42,25 +43,40 @@ class Course < ApplicationRecord
       end
   end
 
+  # 計算三向度的平均評分
+  def average_ratings
+    [].tap do |average_ratings_array|
+      [0, 1, 2].each do |category_number|
+        average_rating = ratings.where(category: category_number).average(:score).to_f
+        average_ratings_array << (average_rating.nil? ? 0 : average_rating)
+      end
+    end
+  end
+
   # 重載 json serializer
   def serializable_hash(options = nil)
     options = options.try(:dup) || {}
 
-    # relation 的 foreign_key 不需要了直接移除
-    # excepts = %I[time_slots semester_id permanent_course_id]
-    onlys = %I[id code credit grade classroom registration_count registration_limit created_at udpated_at]
+    onlys = %I[id code credit grade classroom registration_count registration_limit created_at updated_at]
     super({ **options, only: onlys }).tap do |result|
-      # 預設直接引入 relation, 不用在 controller 裡自己加
       result[:semester] = semester.serializable_hash_for_course
       result[:department] = department.serializable_hash_for_course
-
-      result[:teachers] = []
-      teachers.each do |teacher|
-        result[:teachers] << teacher.serializable_hash_for_course
-      end
-
+      result[:teachers] = teachers.map(&:serializable_hash_for_course)
       result[:time_slots] = convert_time_slots
-      result[:ratings] = ratings
+      result[:ratings] = average_ratings
+      result[:permanent_course] = permanent_course.serializable_hash_for_course
+    end
+  end
+
+  def serializable_hash_for_single_course
+    {}.tap do |result|
+      result[:href] = 'https://timetable.nctu.edu.tw/?r=main/'\
+        "crsoutline&Acy=#{semester.year}&Sem=#{semester.term}&CrsNo=#{code}&lang=zh-tw"
+      result[:rating] = average_ratings
+      result[:created_at] = created_at
+      result[:updated_at] = updated_at
+      result[:similar_courses] = recommend_courses
+      result[:course_infos] = past_course_infos
       result[:permanent_course] = permanent_course.serializable_hash_for_course
     end
   end
@@ -68,15 +84,20 @@ class Course < ApplicationRecord
   def serializable_hash_for_books
     {}.tap do |result|
       result[:course_id] = id
-      result[:course_name] = permanent_course.name
-      result[:teachers] = [].tap do |i|
-        teachers.each do |teacher|
-          i << teacher.serializable_hash_for_books
-        end
-      end
+      result[:course_name] = permanent_course_name
+      result[:teachers] = teachers.map(&:name)
     end
   end
 
+  def serializable_hash_for_comments
+    {}.tap do |result|
+      result[:course_id] = id
+      result[:course_name] = permanent_course_name
+      result[:teachers] = teachers.map(&:name)
+    end
+  end
+
+  # 找出此堂課的歷年開課紀錄(限定同開課老師)
   def related_courses
     courses = Course.includes(:teachers)
                     .where(permanent_course_id: permanent_course_id)
@@ -87,21 +108,39 @@ class Course < ApplicationRecord
     end
   end
 
+  # 找出推薦的課程(利用分數資料)
   def recommend_courses
-    courses = Score.where(user_id: Course.find(640).user_ids)
+    courses = Score.where(user_id: user_ids)
                    .where.not(course_id: id)
                    .group(:course_id)
                    .order('count_all desc')
                    .limit(5)
                    .count.keys
-    Course.where(id: courses).all
+    courses.map do |course_id|
+      Hash[Course.find(course_id).permanent_course_name, course_id]
+    end
   end
 
-  def serializable_hash_for_comments
-    {}.tap do |result|
-      result[:course_id] = id
-      result[:course_name] = permanent_course.name
-      result[:teachers] = teachers.map(&:name)
+  # 將related_courses的結果序列化
+  def past_course_infos
+    [].tap do |course_infos|
+      related_courses.each do |course|
+        course_infos << {
+          id: course.id,
+          semester: course.semester.serializable_hash_for_course,
+          department: course.department.serializable_hash_for_course,
+          code: course.code,
+          requirement_type: course.requirement_type,
+          registration_count: course.registration_count,
+          registration_limit: course.registration_limit,
+          time_slots: course.convert_time_slots,
+          classroom: course.classroom,
+          grade: course.grade,
+          credit: course.credit,
+          teachers: course.teachers.map(&:serializable_hash_for_course),
+          remarks: course.remarks
+        }
+      end
     end
   end
 end

@@ -22,7 +22,7 @@ class CoursesController < ApplicationController
 
   # GET /courses/1
   def show
-    render json: @course
+    render json: @course.serializable_hash_for_single_course
   end
 
   # @todo: 當資料有改動的時候更新 last_edit_user_id
