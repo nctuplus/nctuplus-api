@@ -28,7 +28,7 @@ RSpec.describe CoursesController, type: :controller do
   # Course. As you add validations to Course, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) do
-    FactoryBot.attributes_for :course
+    FactoryBot.attributes_for :course_for_rspec_test
   end
 
   let(:invalid_attributes) do
