@@ -5,6 +5,6 @@ FactoryBot.define do
 
   factory :score_for_rspec_test, parent: :score do
     user { create(:user) }
-    course { create(:course) }
+    course { create(:course_for_rspec_test) }
   end
 end
