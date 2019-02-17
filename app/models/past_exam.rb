@@ -9,9 +9,7 @@ class PastExam < ApplicationRecord
       result[:description] = description
       result[:download_count] = download_count
       result[:file] = { url: file_url }
-      result[:uploader_id] = uploader.id
-      result[:created_at] = created_at
-      result[:updated_at] = updated_at
+      result[:uploader] = uploader_name
     end
   end
 

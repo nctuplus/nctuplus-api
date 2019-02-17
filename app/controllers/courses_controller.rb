@@ -1,5 +1,5 @@
 class CoursesController < ApplicationController
-  before_action :set_course, only: [:show, :update, :destroy, :past_exams]
+  before_action :set_course, only: [:show, :update, :destroy]
   before_action :authenticate_user!, only: [:rating, :favorite, :remove_favorite]
 
   # GET /courses
@@ -82,18 +82,16 @@ class CoursesController < ApplicationController
 
   # GET /courses/:id/past_exams
   def past_exams
+    course_id = params[:course_id]
     page = params[:page].try(:to_i) || 1
     per_page = params[:per_page].try(:to_i) || 25
-    @past_exams = @course.past_exams.includes(:uploader).page(page).per(per_page)
-    data = []
-    @past_exams.each do |past_exam|
-      data << past_exam.serializable_hash_for_course
-    end
+    past_exams = PastExam.where(course_id: course_id)
+                         .includes(:uploader).page(page).per(per_page)
     render json: {
       current_page: page,
-      total_pages: @past_exams.total_pages,
-      total_count: @past_exams.total_count,
-      data: data
+      total_pages: past_exams.total_pages,
+      total_count: past_exams.total_count,
+      data: past_exams.map(&:serializable_hash_for_course)
     }
   end
 
