@@ -31,6 +31,10 @@ RSpec.describe PastExamsController, type: :controller do
     FactoryBot.attributes_for :past_exam
   end
 
+  let(:current_user) do
+    FactoryBot.create :user
+  end
+
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
   # PastExamsController. Be sure to keep this updated too.
@@ -38,21 +42,17 @@ RSpec.describe PastExamsController, type: :controller do
 
   describe 'GET #index' do
     it 'returns a success response' do
-      past_exam = PastExam.create! valid_attributes
+      PastExam.create! valid_attributes
       get :index, params: {}, session: valid_session
       expect(response).to be_successful
     end
   end
 
-  describe 'GET #show' do
-    it 'returns a success response' do
-      past_exam = PastExam.create! valid_attributes
-      get :show, params: { id: past_exam.to_param }, session: valid_session
-      expect(response).to be_successful
-    end
-  end
-
   describe 'POST #create' do
+    before(:each) do
+      request.headers.merge! current_user.create_new_auth_token
+    end
+
     context 'with valid params' do
       it 'creates a new PastExam' do
         expect do
@@ -64,38 +64,71 @@ RSpec.describe PastExamsController, type: :controller do
         post :create, params: { past_exam: valid_attributes }, session: valid_session
         expect(response).to have_http_status(:created)
         expect(response.content_type).to eq('application/json')
-        expect(response.location).to eq(past_exam_url(PastExam.last))
+        expect(response.location).to eq(PastExam.last.file_url)
       end
     end
   end
 
   describe 'PUT #update' do
-    context 'with valid params' do
+    before(:each) do
+      request.headers.merge! current_user.create_new_auth_token
+    end
       let(:new_attributes) {{ description: :abcdefg }}
 
+    context 'with valid params' do
+
       it 'updates the requested past_exam' do
-        past_exam = PastExam.create! valid_attributes
+        past_exam = current_user.past_exams.create! valid_attributes
         put :update, params: { id: past_exam.to_param, past_exam: new_attributes }, session: valid_session
         past_exam.reload
         expect(past_exam.description).to eq('abcdefg')
       end
 
       it 'renders a JSON response with the past_exam' do
-        past_exam = PastExam.create! valid_attributes
-
+        past_exam = current_user.past_exams.create! valid_attributes
         put :update, params: { id: past_exam.to_param, past_exam: valid_attributes }, session: valid_session
         expect(response).to have_http_status(:ok)
+        expect(response.content_type).to eq('application/json')
+      end
+    end
+
+    context 'with current user is not the past exam creator' do
+      it 'does not update the requested past exam' do
+        past_exam = current_user.past_exams.create! valid_attributes
+        past_exam.update(uploader: FactoryBot.create(:user))
+        put :update, params: { id: past_exam.to_param, past_exam:  new_attributes }
+        past_exam.reload
+        expect(past_exam.description).not_to eq('abcdefg')
+      end
+
+      it 'renders JSON response with 404 unauthorized status code' do
+        past_exam = current_user.past_exams.create! valid_attributes
+        past_exam.update(uploader: FactoryBot.create(:user))
+        put :update, params: { id: past_exam.to_param, past_exam: new_attributes }
+        expect(response).to have_http_status(:unauthorized)
         expect(response.content_type).to eq('application/json')
       end
     end
   end
 
   describe 'DELETE #destroy' do
+    before(:each) do
+      request.headers.merge! current_user.create_new_auth_token
+    end
+
     it 'destroys the requested past_exam' do
-      past_exam = PastExam.create! valid_attributes
+      past_exam = current_user.past_exams.create! valid_attributes
       expect do
         delete :destroy, params: { id: past_exam.to_param }, session: valid_session
       end.to change(PastExam, :count).by(-1)
+    end
+
+    it 'does not delete the requestes past_exam' do
+      past_exam = current_user.past_exams.create! valid_attributes
+      past_exam.update(uploader: FactoryBot.create(:user))
+      expect do
+        delete :destroy, params: { id: past_exam.to_param }
+      end.to change(PastExam, :count).by(0)
     end
   end
 end
