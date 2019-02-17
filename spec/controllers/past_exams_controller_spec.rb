@@ -28,7 +28,7 @@ RSpec.describe PastExamsController, type: :controller do
   # PastExam. As you add validations to PastExam, be sure to
   # adjust the attributes here as well.
   let(:valid_attributes) do
-    FactoryBot.attributes_for :past_exam
+    FactoryBot.attributes_for :past_exam_for_rspec_test
   end
 
   let(:current_user) do

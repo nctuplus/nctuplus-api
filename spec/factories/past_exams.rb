@@ -12,6 +12,6 @@ FactoryBot.define do
   end
 
   factory :past_exam_for_rspec_test, parent: :past_exam do
-    course { create(:course_for_rspec_test) }
+    course_id { create(:course_for_rspec_test).id }
   end
 end
