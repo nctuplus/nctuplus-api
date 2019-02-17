@@ -6,7 +6,8 @@ class EventsController < ApplicationController
   def index
     page = params[:page].try(:to_i) || 1
     per_page = params[:per_page].try(:to_i) || 15
-    @events = Event.all.page(page).per(per_page)
+    filters = Event.ransack(params[:q])
+    @events = filters.result(distinct: true).page(page).per(per_page)
 
     render json: {
       current_page: page,

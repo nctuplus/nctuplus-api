@@ -9,6 +9,9 @@ FactoryBot.define do
       )
     end
     uploader { create(:user) }
-    course_id { create(:course).id }
+  end
+
+  factory :past_exam_for_rspec_test, parent: :past_exam do
+    course { create(:course_for_rspec_test) }
   end
 end

@@ -25,8 +25,10 @@ Rails.application.routes.draw do
         post 'rating', to: 'courses#rating', as: :rating
         post 'favorite', to: 'courses#favorite', as: :favorite
         delete 'favorite', to: 'courses#remove_favorite', as: :remove_favorite
+        get 'comments', to: 'courses#show_comments', as: :comments
         get 'past_exams', to: 'courses#past_exams', as: :past_exams
       end
+      resources :comments
       resources :users, only: [:index]
 
       # 跟已登入 user 相關路由
