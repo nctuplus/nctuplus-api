@@ -23,6 +23,21 @@ class Comment < ApplicationRecord
     end
   end
 
+  def serializable_hash_for_course
+    {}.tap do |result|
+      result[:id] = id
+      result[:title] = title
+      result[:content] = content
+      result[:rating] = '000'
+      course_ratings.each do |rating|
+        result[:rating][rating.category] = rating.score.to_s
+      end
+      result[:course] = course.serializable_hash_for_comments
+      result[:user] = { id: user_id, name: user.name }
+      result[:anonymity] = anonymity
+    end
+  end
+
   # 建立該筆心得對應的評分紀錄
   def create_course_ratings(ratings = [0, 0, 0])
     ratings.each do |rating|
