@@ -57,6 +57,6 @@ class Comment < ApplicationRecord
     # Delete old ratings records
     course_ratings.delete_all
     # Create updated rating records
-    create_course_ratings(rating)
+    create_course_ratings(ratings)
   end
 end
