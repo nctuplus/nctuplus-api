@@ -97,6 +97,15 @@ class Course < ApplicationRecord
     end
   end
 
+  def serializable_hash_for_applicable_course
+    {}.tap do |result|
+      result[:id] = id
+      result[:semester] = semester.serializable_hash_for_course
+      result[:teachers] = teachers.map(&:serializable_hash_for_course)
+      result[:permanent_course] = { id: permanent_course.id, name: permanent_course_name }
+    end
+  end
+
   # 找出此堂課的歷年開課紀錄(限定同開課老師)
   def related_courses
     courses = Course.includes(:teachers)

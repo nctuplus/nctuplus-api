@@ -1,6 +1,6 @@
 class CoursesController < ApplicationController
   before_action :set_course, only: [:show, :update, :destroy]
-  before_action :authenticate_user!, only: [:rating, :favorite, :remove_favorite]
+  before_action :authenticate_user!, only: [:rating, :favorite, :remove_favorite, :applicable_courses]
 
   # GET /courses
   def index
@@ -101,6 +101,23 @@ class CoursesController < ApplicationController
     comments = Comment.where(course_id: course_id)
                       .includes(:user, :teachers, :course_ratings)
     render json: comments.map(&:serializable_hash_for_course)
+  end
+
+  # POST /courses/applicable_courses
+  def applicable_courses
+    page = params[:page].try(:to_i) || 1
+    per_page = params[:per_page].try(:to_i) || 25
+    filters = Course
+              .includes(:semester, :permanent_course, :teachers)
+              .ransack(semester_term_eq: params[:term], semester_year_eq: params[:year])
+    @courses = filters.result(distnct: true).page(page).per(per_page)
+
+    render json: {
+      current_page: page,
+      total_pages: @courses.total_pages,
+      total_count: @courses.total_count,
+      data: @courses.map(&:serializable_hash_for_applicable_course)
+    }
   end
 
   private
