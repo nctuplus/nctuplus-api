@@ -27,6 +27,9 @@ Rails.application.routes.draw do
         delete 'favorite', to: 'courses#remove_favorite', as: :remove_favorite
         get 'comments', to: 'courses#show_comments', as: :comments
         get 'past_exams', to: 'courses#past_exams', as: :past_exams
+        collection do
+          post :applicable_courses
+        end
       end
       resources :comments
       resources :users, only: [:index]
