@@ -5,7 +5,7 @@ class CommentsController < ApplicationController
   # GET /comments
   def index
     page = params[:page].try(:to_i) || 1
-    per_page = params[:per_page].try(:to_i) || 15
+    per_page = params[:per_page].try(:to_i) || 25
     filters = Comment.includes(:course, :user, :course_ratings,
                                :permanent_course, :teachers).ransack(params[:q])
     @comments = filters.result(distinct: true).page(page).per(per_page)
