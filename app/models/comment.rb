@@ -66,11 +66,11 @@ class Comment < ApplicationRecord
     ratings_array = ratings.scan(/\d/).map(&:to_i)
 
     # return if the ratings remain unchanged
-    return if previous_rating.eql?(ratings) || ratings.nil?
+    return if previous_rating.eql?(ratings_array)
 
     # Delete old ratings records
     course_ratings.delete_all
     # Create updated rating records
-    create_course_ratings(ratings_array)
+    create_course_ratings(ratings)
   end
 end
