@@ -16,7 +16,7 @@ class Comment < ApplicationRecord
 
   def serializable_hash(options = nil)
     options = options.try(:dup) || {}
-    super({ **options, except: [:user_id, :course_id, :created_at, :updated_at] }).tap do |result|
+    super({ **options, except: [:user_id, :course_id] }).tap do |result|
       result[:course] = course.serializable_hash_for_comments
       result[:user] = { 'id': user_id, 'name': user.name }
       result[:rating] = '000'
