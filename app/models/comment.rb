@@ -44,10 +44,16 @@ class Comment < ApplicationRecord
 
   # 建立該筆心得對應的評分紀錄
   def create_course_ratings(ratings = [0, 0, 0])
-    ratings.each do |rating|
+    # return false if the ratings is nil
+    return false if ratings.nil?
+
+    ratings_array = ratings.scan(/\d/).map(&:to_i)
+
+    # Check if any rating is negative or larger than 5
+    ratings_array.each do |rating|
       return false if rating > 5 || rating.negative?
     end
-    ratings.each_with_index do |rating, index|
+    ratings_array.each_with_index do |rating, index|
       user.course_ratings.create course: course, category: index, score: rating
     end
     true
@@ -55,12 +61,17 @@ class Comment < ApplicationRecord
 
   # 更新該筆心得對應的評分紀錄
   def update_course_ratings(ratings = [0, 0, 0])
+    return if ratings.nil?
+
     previous_rating = course_ratings.order(:category).pluck(:score)
+    ratings_array = ratings.scan(/\d/).map(&:to_i)
+
+    # return if the ratings remain unchanged
     return if previous_rating.eql?(ratings) || ratings.nil?
 
     # Delete old ratings records
     course_ratings.delete_all
     # Create updated rating records
-    create_course_ratings(ratings)
+    create_course_ratings(ratings_array)
   end
 end
