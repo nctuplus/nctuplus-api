@@ -5,7 +5,6 @@ class Comment < ApplicationRecord
   belongs_to :user
   has_many :course_ratings, through: :user
 
-  validates :anonymity, inclusion: { in: [true, false], message: '%{attribute} should be boolean a value' }
   validates :title, :content, presence: { message: '%{attribute} can not be empty' }
   validates :course_id, presence: { message: 'Must specify a course' }
 
