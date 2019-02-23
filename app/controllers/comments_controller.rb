@@ -5,7 +5,7 @@ class CommentsController < ApplicationController
   # GET /comments
   def index
     page = params[:page].try(:to_i) || 1
-    per_page = params[:per_page].try(:to_i) || 15
+    per_page = params[:per_page].try(:to_i) || 25
     filters = Comment.includes(:course, :user, :course_ratings,
                                :permanent_course, :teachers).ransack(params[:q])
     @comments = filters.result(distinct: true).page(page).per(per_page)
@@ -25,14 +25,16 @@ class CommentsController < ApplicationController
 
   # POST /comments
   def create
-    if !Comment.exists?(user_id: current_user.id, course_id: params[:course_id])
-      @comment = current_user.comments.build(comment_params)
+    course_id = params[:course].try(:[], :id)
+
+    if !Comment.exists?(user_id: current_user.id, course_id: course_id)
+      @comment = current_user.comments.build(comment_params.merge(course_id: params[:course].try(:[], :id)))
       if @comment.valid?
-        if @comment.create_course_ratings(params[:rating].scan(/\d/).map(&:to_i))
+        if @comment.create_course_ratings(params[:rating])
           @comment.save
           render json: @comment, status: :created, location: @comment
         else
-          render json: { 'error': 'rating out of range' }, status: :unprocessable_entity
+          render json: { 'error': 'rating out of range or without ratings data' }, status: :unprocessable_entity
         end
       else
         render json: @comment.errors, status: :unprocessable_entity
@@ -44,10 +46,14 @@ class CommentsController < ApplicationController
 
   # PATCH /comments/:id
   def update
+    course_id = params[:course].try(:[], :id)
+    new_attributes_hash = comment_params
+    new_attributes_hash.merge! course_id.nil? ? { course_id: @comment.course_id } : { course_id: course_id }
+
     if @comment.user_id != current_user.id
       render json: { 'error': 'user does not match' }, status: :unauthorized
-    elsif @comment.update(comment_params)
-      @comment.update_course_ratings(params[:rating].scan(/\d/).map(&:to_i))
+    elsif @comment.update(new_attributes_hash)
+      @comment.update_course_ratings(params[:rating])
       render json: @comment, status: :ok
     else
       render json: @comment.errors, status: :unprocessable_entity
