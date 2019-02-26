@@ -20,7 +20,7 @@ class Reply < ApplicationRecord
     comment.serializable_hash_for_comment_latest_news.tap do |result|
       result[:status] = 1
       result[:time] = created_at
-      result[:reply] = serializable_hash(only: [:anonymity])
+      result[:reply] = serializable_hash(only: [:anonymity, :id])
     end
   end
 end
