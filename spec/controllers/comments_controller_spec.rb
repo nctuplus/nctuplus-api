@@ -163,6 +163,18 @@ RSpec.describe CommentsController, type: :controller do
           delete :destroy, params: { id: comment.to_param }
         end.to change(Comment, :count).by(-1)
       end
+
+      it 'destroys all associated replies' do
+        comment = Comment.create valid_attributes
+        comment_id = comment.id
+        comment.update user: current_user
+        3.times do
+          reply = FactoryBot.create :reply_for_rspec_test
+          reply.update user: current_user, comment: comment
+        end
+        delete :destroy, params: { id: comment.to_param }
+        expect(Reply.where(comment_id: comment_id).count).to eq(0)
+      end
     end
 
     context 'current user is not the creator of requested comment' do
