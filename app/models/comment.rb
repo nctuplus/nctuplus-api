@@ -1,9 +1,10 @@
 class Comment < ApplicationRecord
   belongs_to :course
+  belongs_to :user
   has_one :permanent_course, through: :course
   has_many :teachers, through: :course
-  belongs_to :user
   has_many :course_ratings, through: :user
+  has_many :replies, dependent: :delete_all
 
   validates :title, :content, presence: { message: '%{attribute} can not be empty' }
   validates :course_id, presence: { message: 'Must specify a course' }
