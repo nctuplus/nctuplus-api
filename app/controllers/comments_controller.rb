@@ -1,6 +1,11 @@
 class CommentsController < ApplicationController
   before_action :set_comment, only: [:show, :update, :destroy]
-  before_action :authenticate_user!, except: [:index, :show]
+  before_action :authenticate_user!, except: [:index, :show, :latest]
+
+  # GET /comments/latest_news
+  def latest
+    render json: Comment.latest.map(&:serializable_hash_for_comment_latest_news), status: :ok
+  end
 
   # GET /comments
   def index

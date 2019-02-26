@@ -9,6 +9,19 @@ class Comment < ApplicationRecord
   validates :title, :content, presence: { message: '%{attribute} can not be empty' }
   validates :course_id, presence: { message: 'Must specify a course' }
 
+  def self.latest
+    rencent_10_comments = order('created_at DESC')
+                          .limit(10)
+                          .includes(:user, :course, :permanent_course, :teachers)
+    rencent_10_replies = Reply.order('created_at DESC')
+                              .limit(10)
+                              .includes(:user, :comment)
+    (rencent_10_comments + rencent_10_replies)
+      .sort_by! { |record| record[:created_at] }
+      .reverse!
+      .slice(0, 10)
+  end
+
   # 重載course_ratings方法
   # 使其只返回該筆心得所對應到的評分紀錄
   def course_ratings
@@ -40,6 +53,19 @@ class Comment < ApplicationRecord
       result[:course] = course.serializable_hash_for_comments
       result[:user] = { id: user_id, name: user.name }
       result[:anonymity] = anonymity
+    end
+  end
+
+  def serializable_hash_for_comment_latest_news
+    {}.tap do |result|
+      result[:id] = id
+      result[:title] = title
+      result[:course] = course.serializable_hash_for_comments
+      result[:user] = { id: user_id, name: user.name } unless anonymity
+      result[:anonymity] = anonymity
+      result[:status] = 0
+      result[:time] = created_at
+      result[:reply] = nil
     end
   end
 
