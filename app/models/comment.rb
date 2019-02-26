@@ -24,6 +24,7 @@ class Comment < ApplicationRecord
       course_ratings.each do |rating|
         result[:rating][rating.category] = rating.score.to_s
       end
+      result[:reply] = replies.map { |reply| reply.serializable_hash(except: [:user_id, :comment_id]) }
     end
   end
 

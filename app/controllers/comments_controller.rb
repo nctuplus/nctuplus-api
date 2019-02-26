@@ -7,7 +7,7 @@ class CommentsController < ApplicationController
     page = params[:page].try(:to_i) || 1
     per_page = params[:per_page].try(:to_i) || 25
     filters = Comment.includes(:course, :user, :course_ratings,
-                               :permanent_course, :teachers).ransack(params[:q])
+                               :permanent_course, :teachers, :replies).ransack(params[:q])
     @comments = filters.result(distinct: true).page(page).per(per_page)
 
     render json: {
@@ -73,7 +73,9 @@ class CommentsController < ApplicationController
   private
 
   def set_comment
-    @comment = Comment.includes(:course, :user, :course_ratings, :permanent_course, :teachers).find(params[:id])
+    @comment = Comment.includes(:course, :user, :course_ratings,
+                                :permanent_course, :teachers, :replies)
+                      .find(params[:id])
   end
 
   def comment_params
