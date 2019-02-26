@@ -21,7 +21,7 @@ class ReplyController < ApplicationController
     elsif @reply.comment_id != params[:comment_id].to_i
       render json: { 'error': 'unmatched comment ID' }, status: :unprocessable_entity
     elsif @reply.update(reply_params)
-      @reply.update(anonymity: false) if params[:anonymity].is_a? FalseClass
+      @reply.update(anonymity: true) if params[:anonymity].is_a? TrueClass
       render status: :ok
     else
       render json: @reply.errors, status: :unprocessable_entity
