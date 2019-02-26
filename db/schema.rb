@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_17_065532) do
+ActiveRecord::Schema.define(version: 2019_02_24_143829) do
 
   create_table "backgrounds", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "cover_image"
@@ -159,6 +159,15 @@ ActiveRecord::Schema.define(version: 2019_01_17_065532) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "replies", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "comment_id", null: false
+    t.text "content", null: false
+    t.boolean "anonymity", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "scores", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.integer "user_id"
     t.integer "course_id"
@@ -264,6 +273,7 @@ ActiveRecord::Schema.define(version: 2019_01_17_065532) do
     t.index ["user_id"], name: "index_users_events_on_user_id"
   end
 
+  add_foreign_key "books", "users"
   add_foreign_key "courses", "semesters"
   add_foreign_key "departments", "colleges"
   add_foreign_key "events", "users"
