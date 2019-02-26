@@ -20,6 +20,7 @@ class User < ActiveRecord::Base
   has_many :books
   has_many :timetables
   has_many :scorses
+  has_many :replies, dependent: :delete_all
 
   validates :email, uniqueness: true
   validates :name, length: { maximum: 16, message: '姓名過長(max:16)' }

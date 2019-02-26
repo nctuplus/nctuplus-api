@@ -1,13 +1,18 @@
 class CommentsController < ApplicationController
   before_action :set_comment, only: [:show, :update, :destroy]
-  before_action :authenticate_user!, except: [:index, :show]
+  before_action :authenticate_user!, except: [:index, :show, :latest]
+
+  # GET /comments/latest_news
+  def latest
+    render json: Comment.latest.map(&:serializable_hash_for_comment_latest_news), status: :ok
+  end
 
   # GET /comments
   def index
     page = params[:page].try(:to_i) || 1
     per_page = params[:per_page].try(:to_i) || 25
     filters = Comment.includes(:course, :user, :course_ratings,
-                               :permanent_course, :teachers).ransack(params[:q])
+                               :permanent_course, :teachers, :replies).ransack(params[:q])
     @comments = filters.result(distinct: true).page(page).per(per_page)
 
     render json: {
@@ -73,7 +78,9 @@ class CommentsController < ApplicationController
   private
 
   def set_comment
-    @comment = Comment.includes(:course, :user, :course_ratings, :permanent_course, :teachers).find(params[:id])
+    @comment = Comment.includes(:course, :user, :course_ratings,
+                                :permanent_course, :teachers, :replies)
+                      .find(params[:id])
   end
 
   def comment_params
