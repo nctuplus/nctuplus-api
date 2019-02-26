@@ -32,6 +32,9 @@ Rails.application.routes.draw do
         end
       end
       resources :comments do
+        collection do
+          get 'latest_news', to: 'comments#latest'
+        end
         resources :reply, only: [:create, :update, :destroy]
       end
       resources :users, only: [:index]
