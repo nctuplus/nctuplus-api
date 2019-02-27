@@ -7,12 +7,10 @@ class Reply < ApplicationRecord
   def serializable_hash(options = nil)
     options = options.try(:dup) || {}
     super({ **options }).tap do |result|
-      unless anonymity
-        result[:user] = {
-          id: user.id,
-          name: user.name
-        }
-      end
+      result[:user] = {
+        id: user.id,
+        name: user.name
+      }
     end
   end
 
@@ -22,12 +20,9 @@ class Reply < ApplicationRecord
       result[:time] = created_at
       result[:reply] = {
         id: id,
-        user: {
-          id: user.id,
-          name: user.name
-        },
         anonymity: anonymity
       }
+      result[:reply].merge! user: { id: user.id, name: user.name } unless anonymity
     end
   end
 end
