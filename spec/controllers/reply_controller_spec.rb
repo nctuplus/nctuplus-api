@@ -53,68 +53,6 @@ RSpec.describe ReplyController, type: :controller do
     end
   end
 
-  describe 'PATCH #update' do
-    before(:each) do
-      request.headers.merge! auth_token
-      request.headers['Content-Type'] = 'application/json'
-    end
-
-    context 'with valid attributes' do
-      it 'updates the requested reply with new content' do
-        reply = Reply.create valid_attributes
-        reply.update user: current_user
-        patch :update, params: { id: reply.to_param, comment_id: reply.comment.id, reply: new_attribute }
-        reply.reload
-        expect(reply.content).to eq('I am loser.')
-      end
-
-      it 'returs with status code ok' do
-        reply = Reply.create valid_attributes
-        reply.update user: current_user
-        patch :update, params: { id: reply.to_param, comment_id: reply.comment.id, reply: new_attribute }
-        expect(response).to have_http_status(:ok)
-      end
-    end
-
-    context 'with invalid attributes' do
-      it 'does not update the requested reply' do
-        reply = Reply.create valid_attributes
-        reply.update user: current_user
-        origin_content = reply.content
-        patch :update, params: { id: reply.to_param, comment_id: reply.comment.id, reply: invalid_new_attribute }
-        reply.reload
-        expect(reply.content).to eq(origin_content)
-      end
-
-      it 'renders a JSON response with status code unprocessable_entity' do
-        reply = Reply.create valid_attributes
-        reply.update user: current_user
-        patch :update, params: { id: reply.to_param, comment_id: reply.comment.id, reply: invalid_new_attribute }
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(response.content_type).to eq('application/json')
-      end
-    end
-
-    context 'valid_attributes with unmatched comment ID' do
-      it 'does not update the requested reply' do
-        reply = Reply.create valid_attributes
-        reply.update user: current_user
-        origin_content = reply.content
-        patch :update, params: { id: reply.to_param, comment_id: reply.comment_id + 1, reply: new_attribute }
-        reply.reload
-        expect(reply.content).to eq(origin_content)
-      end
-
-      it 'renders a JSON response with status code unprocessable_entity' do
-        reply = Reply.create valid_attributes
-        reply.update user: current_user
-        patch :update, params: { id: reply.to_param, comment_id: reply.comment_id + 1, reply: new_attribute }
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(response.content_type).to eq('application/json')
-      end
-    end
-  end
-
   describe 'DELETE #destroy' do
     before(:each) do
       request.headers.merge! auth_token
