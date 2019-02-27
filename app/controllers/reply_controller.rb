@@ -15,19 +15,6 @@ class ReplyController < ApplicationController
     end
   end
 
-  def update
-    if current_user.id != @reply.user_id
-      render json: { 'error': 'user does not match' }, status: :unauthorized
-    elsif @reply.comment_id != params[:comment_id].to_i
-      render json: { 'error': 'unmatched comment ID' }, status: :unprocessable_entity
-    elsif @reply.update(reply_params)
-      @reply.update(anonymity: true) if params[:anonymity].is_a? TrueClass
-      render status: :ok
-    else
-      render json: @reply.errors, status: :unprocessable_entity
-    end
-  end
-
   def destroy
     if current_user.id != @reply.user_id
       render json: { 'error': 'user does not match' }, status: :unauthorized
