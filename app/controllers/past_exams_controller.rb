@@ -26,7 +26,7 @@ class PastExamsController < ApplicationController
     @past_exam = current_user.past_exams.build(past_exam_params.merge(course_id: params[:course].try(:[], :id)))
 
     if @past_exam.save
-      render status: 200
+      render status: :created, location: @past_exam
     else
       render json: @past_exam.errors, status: :unprocessable_entity
     end
