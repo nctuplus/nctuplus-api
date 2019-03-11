@@ -9,6 +9,7 @@ FactoryBot.define do
       )
     end
     uploader { create(:user) }
+    anonymity { [false, true].sample }
   end
 
   factory :past_exam_for_rspec_test, parent: :past_exam do
