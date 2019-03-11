@@ -1,5 +1,6 @@
 class PastExam < ApplicationRecord
   belongs_to :course
+  has_one :permanent_course, through: :course
   belongs_to :uploader, class_name: :User
   delegate :name, to: :uploader, prefix: true
   mount_base64_uploader :file, PastExamUploader
