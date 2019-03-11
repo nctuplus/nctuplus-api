@@ -56,15 +56,14 @@ RSpec.describe PastExamsController, type: :controller do
     context 'with valid params' do
       it 'creates a new PastExam' do
         expect do
-          post :create, params: { past_exam: valid_attributes }, session: valid_session
+          post :create, params: { past_exam: valid_attributes, course: { id: valid_attributes[:course].id } }, session: valid_session
         end.to change(PastExam, :count).by(1)
       end
 
       it 'renders a JSON response with the new past_exam' do
-        post :create, params: { past_exam: valid_attributes }, session: valid_session
+        post :create, params: { past_exam: valid_attributes, course: { id: valid_attributes[:course].id } }, session: valid_session
         expect(response).to have_http_status(:created)
-        expect(response.content_type).to eq('application/json')
-        expect(response.location).to eq(PastExam.last.file_url)
+        expect(response.location).to eq(past_exam_url(PastExam.last))
       end
     end
   end
