@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_02_24_143829) do
+ActiveRecord::Schema.define(version: 2019_03_10_140739) do
 
   create_table "backgrounds", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "cover_image"
@@ -147,6 +147,7 @@ ActiveRecord::Schema.define(version: 2019_02_24_143829) do
     t.bigint "course_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "anonymity", default: false
     t.index ["course_id"], name: "index_past_exams_on_course_id"
     t.index ["uploader_id"], name: "index_past_exams_on_uploader_id"
   end
