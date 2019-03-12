@@ -9,7 +9,7 @@ class PastExamsController < ApplicationController
     filters = PastExam.ransack(params[:q])
 
     @past_exams = filters
-                  .result(distnct: true)
+                  .result(distinct: true)
                   .includes({ course: [:semester, :teachers, :permanent_course] }, :uploader)
                   .page(page).per(per_page)
 
