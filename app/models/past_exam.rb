@@ -19,7 +19,7 @@ class PastExam < ApplicationRecord
     options = options.try(:dup) || {}
     excepts = %I[uploader_id course_id]
     super({ **options, except: excepts }).tap do |result|
-      result[:uploader] = uploader_name
+      result[:uploader] = { id: uploader.id, name: uploader_name }
       result[:course] = {
         name: course.permanent_course.name,
         semester: course.semester.serializable_hash_for_past_exam,
