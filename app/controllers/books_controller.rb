@@ -53,6 +53,7 @@ class BooksController < ApplicationController
       render json: { "error": "user doesn't match" }, status: :unauthorized
     elsif @book.sold_at.nil?
       @book.update(sold_at: DateTime.now)
+      render status: :no_content
     else
       render json: @book.errors, status: :unprocessable_entity
     end
