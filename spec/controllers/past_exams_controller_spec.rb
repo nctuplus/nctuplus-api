@@ -68,48 +68,6 @@ RSpec.describe PastExamsController, type: :controller do
     end
   end
 
-  describe 'PUT #update' do
-    before(:each) do
-      request.headers.merge! current_user.create_new_auth_token
-    end
-      let(:new_attributes) {{ description: :abcdefg }}
-
-    context 'with valid params' do
-
-      it 'updates the requested past_exam' do
-        past_exam = current_user.past_exams.create! valid_attributes
-        put :update, params: { id: past_exam.to_param, past_exam: new_attributes }, session: valid_session
-        past_exam.reload
-        expect(past_exam.description).to eq('abcdefg')
-      end
-
-      it 'renders a JSON response with the past_exam' do
-        past_exam = current_user.past_exams.create! valid_attributes
-        put :update, params: { id: past_exam.to_param, past_exam: valid_attributes }, session: valid_session
-        expect(response).to have_http_status(:ok)
-        expect(response.content_type).to eq('application/json')
-      end
-    end
-
-    context 'with current user is not the past exam creator' do
-      it 'does not update the requested past exam' do
-        past_exam = current_user.past_exams.create! valid_attributes
-        past_exam.update(uploader: FactoryBot.create(:user))
-        put :update, params: { id: past_exam.to_param, past_exam:  new_attributes }
-        past_exam.reload
-        expect(past_exam.description).not_to eq('abcdefg')
-      end
-
-      it 'renders JSON response with 404 unauthorized status code' do
-        past_exam = current_user.past_exams.create! valid_attributes
-        past_exam.update(uploader: FactoryBot.create(:user))
-        put :update, params: { id: past_exam.to_param, past_exam: new_attributes }
-        expect(response).to have_http_status(:unauthorized)
-        expect(response.content_type).to eq('application/json')
-      end
-    end
-  end
-
   describe 'DELETE #destroy' do
     before(:each) do
       request.headers.merge! current_user.create_new_auth_token
