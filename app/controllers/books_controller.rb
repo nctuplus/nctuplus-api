@@ -53,6 +53,7 @@ class BooksController < ApplicationController
       render json: { "error": "user doesn't match" }, status: :unauthorized
     elsif @book.sold_at.nil?
       @book.update(sold_at: DateTime.now)
+      render status: :no_content
     else
       render json: @book.errors, status: :unprocessable_entity
     end
@@ -93,10 +94,10 @@ class BooksController < ApplicationController
     if params.fetch(:book, {}).key?(:courses)
       params.fetch(:book, {})
             .permit(
-              courses: [:course_id]
+              courses: [:id]
             )
             .fetch(:courses)
-            .map { |course| course[:course_id] }
+            .map { |course| course[:id] }
             .try(:sort_by!) { |id| id }
     else
       []
