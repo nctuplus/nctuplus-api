@@ -3,8 +3,7 @@ class User < ActiveRecord::Base
   # :confirmable, :lockable, :timeoutable and :omniauthable
   # TODO: configure omniauth for devise_token_auth
   # https://devise-token-auth.gitbook.io/devise-token-auth/configuration/omniauth
-  devise :database_authenticatable, :registerable,
-         :recoverable, :trackable, :validatable
+  devise :trackable
   include DeviseTokenAuth::Concerns::User
 
   has_many :users_events
