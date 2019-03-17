@@ -20,7 +20,5 @@ class User < ActiveRecord::Base
   has_many :timetables
   has_many :scorses
 
-  validates :email, uniqueness: true
   validates :name, length: { maximum: 16, message: '姓名過長(max:16)' }
-  validates :admission_year, numericality: { greater_than: 0, message: '請填寫入學年度' }
 end
