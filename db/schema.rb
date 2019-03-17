@@ -10,7 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_01_17_065532) do
+ActiveRecord::Schema.define(version: 2019_03_16_061358) do
+
+  create_table "auth_googles", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "uid", null: false
+    t.integer "user_id"
+    t.string "email", null: false
+    t.string "name", null: false
+    t.string "image_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "backgrounds", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "cover_image"
@@ -147,6 +157,7 @@ ActiveRecord::Schema.define(version: 2019_01_17_065532) do
     t.bigint "course_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "anonymity", default: false
     t.index ["course_id"], name: "index_past_exams_on_course_id"
     t.index ["uploader_id"], name: "index_past_exams_on_uploader_id"
   end
@@ -155,6 +166,15 @@ ActiveRecord::Schema.define(version: 2019_01_17_065532) do
     t.string "name"
     t.string "code"
     t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "replies", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "comment_id", null: false
+    t.text "content", null: false
+    t.boolean "anonymity", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -264,6 +284,7 @@ ActiveRecord::Schema.define(version: 2019_01_17_065532) do
     t.index ["user_id"], name: "index_users_events_on_user_id"
   end
 
+  add_foreign_key "books", "users"
   add_foreign_key "courses", "semesters"
   add_foreign_key "departments", "colleges"
   add_foreign_key "events", "users"
