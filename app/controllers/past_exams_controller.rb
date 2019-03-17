@@ -32,17 +32,6 @@ class PastExamsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /past_exams/1
-  def update
-    if current_user.id != @past_exam.uploader_id
-      render json: { 'error': 'user does not match' }, status: :unauthorized
-    elsif @past_exam.update(past_exam_params)
-      render json: @past_exam, location: @past_exam.file_url
-    else
-      render json: @past_exam.errors, status: :unprocessable_entity
-    end
-  end
-
   # DELETE /past_exams/1
   def destroy
     if current_user.id != @past_exam.uploader_id
