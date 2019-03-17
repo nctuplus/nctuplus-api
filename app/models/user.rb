@@ -3,7 +3,7 @@ class User < ActiveRecord::Base
   # :confirmable, :lockable, :timeoutable and :omniauthable
   # TODO: configure omniauth for devise_token_auth
   # https://devise-token-auth.gitbook.io/devise-token-auth/configuration/omniauth
-  devise :trackable
+  devise :trackable, :omniauthable, omniauth_providers: %i[nctu facebook google_oauth2]
   include DeviseTokenAuth::Concerns::User
 
   has_many :users_events
