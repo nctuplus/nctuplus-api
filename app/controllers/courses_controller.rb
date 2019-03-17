@@ -109,7 +109,9 @@ class CoursesController < ApplicationController
     per_page = params[:per_page].try(:to_i) || 25
     filters = Course
               .includes(:semester, :permanent_course, :teachers)
-              .ransack(semester_term_eq: params[:term], semester_year_eq: params[:year])
+              .ransack(semester_term_eq: params[:term],
+                       semester_year_eq: params[:year],
+                       permanent_course_name_cont: params[:keyword])
     @courses = filters.result(distnct: true).page(page).per(per_page)
 
     render json: {
