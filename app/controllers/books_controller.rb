@@ -93,10 +93,10 @@ class BooksController < ApplicationController
     if params.fetch(:book, {}).key?(:courses)
       params.fetch(:book, {})
             .permit(
-              courses: [:course_id]
+              courses: [:id]
             )
             .fetch(:courses)
-            .map { |course| course[:course_id] }
+            .map { |course| course[:id] }
             .try(:sort_by!) { |id| id }
     else
       []
