@@ -32,6 +32,15 @@ ActiveRecord::Schema.define(version: 2019_03_18_122400) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "auth_nctus", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "student_id", null: false
+    t.string "name", null: false
+    t.string "email", null: false
+    t.integer "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "backgrounds", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "cover_image"
     t.bigint "author_id"
