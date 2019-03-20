@@ -6,6 +6,10 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :trackable, :omniauthable, omniauth_providers: %i[nctu facebook google_oauth2]
   include DeviseTokenAuth::Concerns::User
 
+  has_one :auth_nctu, dependent: :nullify
+  has_one :auth_facebook, dependent: :nullify
+  has_one :auth_google, dependent: :nullify
+
   has_many :users_events
   has_many :events, through: :users_events
   has_many :users_courses
