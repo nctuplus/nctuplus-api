@@ -10,7 +10,7 @@ class AuthNctu < ApplicationRecord
     end
   end
 
-  def find_or_initialize_user_by_student_id(student_id)
+  def find_or_initialize_user_by_uid(student_id)
     # Return the user if it already exists
     return user unless user.nil?
 
