@@ -25,4 +25,33 @@ class User < ActiveRecord::Base
   has_many :scorses
 
   validates :name, length: { maximum: 16, message: '姓名過長(max:16)' }
+
+  def auth_nctu?
+    auth_nctu.present?
+  end
+
+  def auth_facebook?
+    auth_facebook.present?
+  end
+
+  def auth_google?
+    auth_google.present?
+  end
+
+  def support_account_binding?
+    provider == 'nctu'
+  end
+
+  def check_repeat_account_binding?(provider:)
+    case provider
+    when 'facebook'
+      auth_facebook?
+    when 'google_oauth2'
+      auth_google?
+    when 'nctu'
+      auth_nctu?
+    else
+      true
+    end
+  end
 end
