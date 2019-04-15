@@ -29,7 +29,7 @@ module NctuplusApi
     # cors support
     config.middleware.insert_before 0, Rack::Cors do
       allow do
-        origins '*'
+        origins 'https://plus.nctu.edu.tw'
         resource '*',
                  headers: :any,
                  methods: [:get, :post, :options, :put, :patch, :delete],
