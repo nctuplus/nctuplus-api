@@ -36,5 +36,7 @@ module NctuplusApi
                  expose: ['Access-Token', 'Uid', 'Token-Type', 'Client']
       end
     end
+    config.middleware.use ActionDispatch::Cookies
+    config.middleware.use ActionDispatch::Session::CookieStore
   end
 end
