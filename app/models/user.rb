@@ -54,4 +54,8 @@ class User < ActiveRecord::Base
       true
     end
   end
+
+  def check_user_session_valid?(access_token:, client_id:)
+    valid_token?(access_token, client_id)
+  end
 end
