@@ -1,6 +1,5 @@
-class AuthFacebook < ApplicationRecord
-  belongs_to :user
-
+class AuthFacebook < AuthBase
+  # Create a oauth2 record from the data got from Facebook
   def self.create_record_from_oauth2(user_info)
     find_or_initialize_by(uid: user_info[:uid]).tap do |record|
       record.uid = user_info[:uid]
@@ -11,17 +10,7 @@ class AuthFacebook < ApplicationRecord
     end
   end
 
-  def find_or_initialize_user_by_uid(uid)
-    # Return the user if it already exists
-    return user unless user.nil?
-
-    # Create the user if it does not exist and then return it
-    new_user_record = User.new(name: name, email: email, provider: 'facebook', uid: uid)
-    if new_user_record.save
-      update(user: new_user_record)
-    else
-      new_user_record = nil
-    end
-    new_user_record
+  def find_or_initialize_user_by_uid_provider(uid:, provider: 'facebook')
+    super
   end
 end
