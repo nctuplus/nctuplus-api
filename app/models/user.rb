@@ -3,9 +3,12 @@ class User < ActiveRecord::Base
   # :confirmable, :lockable, :timeoutable and :omniauthable
   # TODO: configure omniauth for devise_token_auth
   # https://devise-token-auth.gitbook.io/devise-token-auth/configuration/omniauth
-  devise :database_authenticatable, :registerable,
-         :recoverable, :trackable, :validatable
+  devise :database_authenticatable, :trackable, :omniauthable, omniauth_providers: %i[nctu facebook google_oauth2]
   include DeviseTokenAuth::Concerns::User
+
+  has_one :auth_nctu, dependent: :nullify
+  has_one :auth_facebook, dependent: :nullify
+  has_one :auth_google, dependent: :nullify
 
   has_many :users_events
   has_many :events, through: :users_events
@@ -22,7 +25,38 @@ class User < ActiveRecord::Base
   has_many :scorses
   has_many :replies, dependent: :delete_all
 
-  validates :email, uniqueness: true
   validates :name, length: { maximum: 16, message: '姓名過長(max:16)' }
-  validates :admission_year, numericality: { greater_than: 0, message: '請填寫入學年度' }
+
+  def auth_nctu?
+    auth_nctu.present?
+  end
+
+  def auth_facebook?
+    auth_facebook.present?
+  end
+
+  def auth_google?
+    auth_google.present?
+  end
+
+  def support_account_binding?
+    provider == 'nctu'
+  end
+
+  def check_repeat_account_binding?(provider:)
+    case provider
+    when 'facebook'
+      auth_facebook?
+    when 'google_oauth2'
+      auth_google?
+    when 'nctu'
+      auth_nctu?
+    else
+      true
+    end
+  end
+
+  def check_user_session_valid?(access_token:, client_id:)
+    valid_token?(access_token, client_id)
+  end
 end

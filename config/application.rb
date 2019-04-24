@@ -29,12 +29,18 @@ module NctuplusApi
     # cors support
     config.middleware.insert_before 0, Rack::Cors do
       allow do
-        origins '*'
+        origins 'https://plus.nctu.edu.tw'
         resource '*',
                  headers: :any,
                  methods: [:get, :post, :options, :put, :patch, :delete],
-                 expose: ['Access-Token', 'Uid', 'Token-Type', 'Client']
+                 expose: ['Access-Token', 'Uid', 'Token-Type', 'Client'],
+                 credentials: true
       end
     end
+    config.middleware.use ActionDispatch::Cookies
+    config.middleware.use ActionDispatch::Session::CookieStore
+
+    # Custom configuration
+    config.fronted_hostname = 'plus.nctu.edu.tw'
   end
 end
