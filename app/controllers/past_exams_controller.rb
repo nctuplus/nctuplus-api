@@ -9,7 +9,7 @@ class PastExamsController < ApplicationController
     filters = PastExam.ransack(params[:q])
 
     @past_exams = filters
-                  .result(distnct: true)
+                  .result(distinct: true)
                   .includes({ course: [:semester, :teachers, :permanent_course] }, :uploader)
                   .page(page).per(per_page)
 
@@ -23,21 +23,10 @@ class PastExamsController < ApplicationController
 
   # POST /past_exams
   def create
-    @past_exam = current_user.past_exams.build(past_exam_params)
+    @past_exam = current_user.past_exams.build(past_exam_params.merge(course_id: params[:course].try(:[], :id)))
 
     if @past_exam.save
-      render json: @past_exam, status: :created, location: @past_exam.file_url
-    else
-      render json: @past_exam.errors, status: :unprocessable_entity
-    end
-  end
-
-  # PATCH/PUT /past_exams/1
-  def update
-    if current_user.id != @past_exam.uploader_id
-      render json: { 'error': 'user does not match' }, status: :unauthorized
-    elsif @past_exam.update(past_exam_params)
-      render json: @past_exam, location: @past_exam.file_url
+      render status: :created, location: @past_exam
     else
       render json: @past_exam.errors, status: :unprocessable_entity
     end
@@ -62,6 +51,6 @@ class PastExamsController < ApplicationController
   # Only allow a trusted parameter "white list" through.
   def past_exam_params
     params.fetch(:past_exam, {})
-          .permit(:description, :file, :course_id)
+          .permit(:description, :file, :anonymity)
   end
 end

@@ -15,7 +15,7 @@ Rails.application.routes.draw do
           get 'latest_news', to: 'books#latest', as: :latest
         end
       end
-      resources :past_exams, except: [:show]
+      resources :past_exams, except: [:show, :update]
       resources :events do
         post 'follow', to: 'events#follow', as: :follow
         delete 'follow', to: 'events#unfollow', as: :unfollow
@@ -31,7 +31,12 @@ Rails.application.routes.draw do
           post :applicable_courses
         end
       end
-      resources :comments
+      resources :comments do
+        collection do
+          get 'latest_news', to: 'comments#latest'
+        end
+        resources :reply, only: [:create, :destroy]
+      end
       resources :users, only: [:index]
 
       # 跟已登入 user 相關路由

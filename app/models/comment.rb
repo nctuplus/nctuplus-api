@@ -1,9 +1,26 @@
 class Comment < ApplicationRecord
   belongs_to :course
+  belongs_to :user
   has_one :permanent_course, through: :course
   has_many :teachers, through: :course
-  belongs_to :user
   has_many :course_ratings, through: :user
+  has_many :replies, dependent: :delete_all
+
+  validates :title, :content, presence: { message: '%{attribute} can not be empty' }
+  validates :course_id, presence: { message: 'Must specify a course' }
+
+  def self.latest
+    rencent_10_comments = order('created_at DESC')
+                          .limit(10)
+                          .includes(:user, :course, :permanent_course, :teachers)
+    rencent_10_replies = Reply.order('created_at DESC')
+                              .limit(10)
+                              .includes(:user, :comment)
+    (rencent_10_comments + rencent_10_replies)
+      .sort_by! { |record| record[:created_at] }
+      .reverse!
+      .slice(0, 10)
+  end
 
   # 重載course_ratings方法
   # 使其只返回該筆心得所對應到的評分紀錄
@@ -20,6 +37,7 @@ class Comment < ApplicationRecord
       course_ratings.each do |rating|
         result[:rating][rating.category] = rating.score.to_s
       end
+      result[:reply] = replies.map { |reply| reply.serializable_hash(except: [:user_id, :comment_id]) }
     end
   end
 
@@ -38,12 +56,31 @@ class Comment < ApplicationRecord
     end
   end
 
+  def serializable_hash_for_comment_latest_news
+    {}.tap do |result|
+      result[:id] = id
+      result[:title] = title
+      result[:course] = course.serializable_hash_for_comments
+      result[:user] = { id: user_id, name: user.name } unless anonymity
+      result[:anonymity] = anonymity
+      result[:status] = 0
+      result[:time] = created_at
+      result[:reply] = nil
+    end
+  end
+
   # 建立該筆心得對應的評分紀錄
   def create_course_ratings(ratings = [0, 0, 0])
-    ratings.each do |rating|
+    # return false if the ratings is nil
+    return false if ratings.nil?
+
+    ratings_array = ratings.scan(/\d/).map(&:to_i)
+
+    # Check if any rating is negative or larger than 5
+    ratings_array.each do |rating|
       return false if rating > 5 || rating.negative?
     end
-    ratings.each_with_index do |rating, index|
+    ratings_array.each_with_index do |rating, index|
       user.course_ratings.create course: course, category: index, score: rating
     end
     true
@@ -51,8 +88,13 @@ class Comment < ApplicationRecord
 
   # 更新該筆心得對應的評分紀錄
   def update_course_ratings(ratings = [0, 0, 0])
+    return if ratings.nil?
+
     previous_rating = course_ratings.order(:category).pluck(:score)
-    return if previous_rating.eql?(ratings) || ratings.nil?
+    ratings_array = ratings.scan(/\d/).map(&:to_i)
+
+    # return if the ratings remain unchanged
+    return if previous_rating.eql?(ratings_array)
 
     # Delete old ratings records
     course_ratings.delete_all

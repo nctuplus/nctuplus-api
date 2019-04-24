@@ -83,16 +83,16 @@ class Course < ApplicationRecord
 
   def serializable_hash_for_books
     {}.tap do |result|
-      result[:course_id] = id
-      result[:course_name] = permanent_course_name
+      result[:id] = id
+      result[:name] = permanent_course_name
       result[:teachers] = teachers.map(&:name)
     end
   end
 
   def serializable_hash_for_comments
     {}.tap do |result|
-      result[:course_id] = id
-      result[:course_name] = permanent_course_name
+      result[:id] = id
+      result[:name] = permanent_course_name
       result[:teachers] = teachers.map(&:name)
     end
   end

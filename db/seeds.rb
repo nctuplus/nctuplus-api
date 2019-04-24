@@ -32,6 +32,9 @@ PermanentCourse.all.each do |permanent_course|
       3.times do |i|
         comment.user.course_ratings.create FactoryBot.attributes_for :course_rating, category: i, course: course
       end
+      (0..5).to_a.sample.times do
+        users.sample.replies.create FactoryBot.attributes_for :reply, comment_id: comment.id
+      end
     end
 
     # Create associated fake scores and users course data
