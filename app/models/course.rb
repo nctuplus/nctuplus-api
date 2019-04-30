@@ -45,10 +45,13 @@ class Course < ApplicationRecord
 
   # 計算三向度的平均評分
   def average_ratings
-    [].tap do |average_ratings_array|
-      [0, 1, 2].each do |category_number|
-        average_rating = ratings.where(category: category_number).average(:score).to_f
-        average_ratings_array << (average_rating.nil? ? 0 : average_rating)
+    {}.tap do |result|
+      result[:people] = ratings.length
+      result[:stars] = [].tap do |average_ratings_array|
+        [0, 1, 2].each do |category_number|
+          average_rating = ratings.where(category: category_number).average(:score).to_f
+          average_ratings_array << (average_rating.nil? ? 0 : average_rating)
+        end
       end
     end
   end
@@ -65,6 +68,7 @@ class Course < ApplicationRecord
       result[:time_slots] = convert_time_slots
       result[:ratings] = average_ratings
       result[:permanent_course] = permanent_course.serializable_hash_for_course
+      result[:chart_data] = chart_data
     end
   end
 
@@ -78,6 +82,7 @@ class Course < ApplicationRecord
       result[:similar_courses] = recommend_courses
       result[:course_infos] = past_course_infos
       result[:permanent_course] = permanent_course.serializable_hash_for_course
+      result[:chart_data] = chart_data
     end
   end
 
@@ -151,5 +156,60 @@ class Course < ApplicationRecord
         }
       end
     end
+  end
+
+  def chart_data
+    {}.tap do |result|
+      result[:avg_score] = Course.where(permanent_course_id: 1)
+                                 .map { |c| c.scores.map { |s| s.score.to_i } }
+                                 .flatten.instance_eval { reduce(:+) / size.to_f }
+      result[:chart_people] = chart_people
+      result[:chart_avg] = chart_avg
+      result[:highest_avg_score] = -1
+      result[:highest_avg_people] = ''
+      result[:chart_avg].each do |sem|
+        sem.each do |key, value|
+          next unless value.is_a? Numeric
+
+          result[:highest_avg_people] = key if value > result[:highest_avg_score]
+          result[:highest_avg_score] = value if value > result[:highest_avg_score]
+        end
+      end
+    end
+  end
+
+  def chart_people
+    result = []
+    Course.where(permanent_course_id: permanent_course_id).map(&:semester).uniq.each do |sem|
+      result << { semester: sem.serializable_hash_for_course }
+      Course.where(permanent_course_id: permanent_course_id)
+            .where(semester: sem.id).map(&:teachers).flatten.uniq.each do |teacher|
+        result.last[teacher.name] = teacher_registration(teacher.id, sem.id)
+      end
+    end
+
+    result
+  end
+
+  def chart_avg
+    result = []
+    Course.where(permanent_course_id: permanent_course_id).map(&:semester).uniq.each do |sem|
+      result << { semester: sem.serializable_hash_for_course }
+      Course.where(permanent_course_id: permanent_course_id)
+            .where(semester: sem.id).map(&:teachers).flatten.uniq.each do |teacher|
+        result.last[teacher.name] = teacher_avg(teacher.id, sem.id)
+      end
+    end
+
+    result
+  end
+
+  def teacher_avg(teacher_id, sem_id)
+    Teacher.find(teacher_id).courses.where(semester: sem_id).first
+           .scores.map { |s| s.score.to_i }.instance_eval { reduce(:+) / size.to_f }
+  end
+
+  def teacher_registration(teacher_id, sem_id)
+    Teacher.find(teacher_id).courses.where(semester: sem_id).first.registration_count
   end
 end
