@@ -16,6 +16,11 @@ class PastExam < ApplicationRecord
         name: uploader_name
       }
       result[:anonymity] = anonymity
+      result[:course] = {
+        name: course.permanent_course.name,
+        semester: course.semester.serializable_hash_for_past_exam,
+        teacher: course.teachers.map(&:name)
+      }
     end
   end
 
