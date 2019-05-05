@@ -11,7 +11,11 @@ class PastExam < ApplicationRecord
       result[:description] = description
       result[:download_count] = download_count
       result[:file] = { url: file_url }
-      result[:uploader] = uploader_name
+      result[:uploader] = {
+        id: uploader_id,
+        name: uploader_name
+      }
+      result[:anonymity] = anonymity
     end
   end
 
