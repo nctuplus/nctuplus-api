@@ -166,12 +166,12 @@ class Course < ApplicationRecord
       result[:chart_people] = chart_people
       result[:chart_avg] = chart_avg
       result[:highest_avg_score] = -1
-      result[:highest_avg_people] = ''
+      result[:highest_avg_teacher] = ''
       result[:chart_avg].each do |sem|
         sem.each do |key, value|
           next unless value.is_a? Numeric
 
-          result[:highest_avg_people] = key if value > result[:highest_avg_score]
+          result[:highest_avg_teacher] = key if value > result[:highest_avg_score]
           result[:highest_avg_score] = value if value > result[:highest_avg_score]
         end
       end
