@@ -83,16 +83,9 @@ class CoursesController < ApplicationController
   # GET /courses/:id/past_exams
   def past_exams
     course_id = params[:course_id]
-    page = params[:page].try(:to_i) || 1
-    per_page = params[:per_page].try(:to_i) || 25
     past_exams = PastExam.where(course_id: course_id)
-                         .includes(:uploader).page(page).per(per_page)
-    render json: {
-      current_page: page,
-      total_pages: past_exams.total_pages,
-      total_count: past_exams.total_count,
-      data: past_exams.map(&:serializable_hash_for_course)
-    }
+                         .includes(:uploader)
+    render json: past_exams.map(&:serializable_hash_for_course)
   end
 
   # GET /courses/:id/comments
