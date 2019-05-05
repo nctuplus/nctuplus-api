@@ -53,6 +53,7 @@ class Comment < ApplicationRecord
       result[:course] = course.serializable_hash_for_comments
       result[:user] = { id: user_id, name: user.name }
       result[:anonymity] = anonymity
+      result[:reply] = replies.map { |reply| reply.serializable_hash(except: [:user_id, :comment_id]) }
     end
   end
 
