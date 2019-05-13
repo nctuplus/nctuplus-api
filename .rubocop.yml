@@ -21,6 +21,9 @@ Metrics/AbcSize:
 
 Metrics/BlockLength:
   Max: 50
+  Exclude:
+    - '**/*.gemspec'
+    - config/routes.rb
 
 # Mixing the styles looks just silly.
 Style/HashSyntax:
