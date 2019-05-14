@@ -1,7 +1,7 @@
 class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   include ActionController::Cookies
   def redirect_callbacks
-    if cookies[:logged_in] == 'true'
+    if cookies.encrypted[:_logged_in] == true
       puts 'Perform account binding'
       account_binding
     else
@@ -20,7 +20,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     if !@user.nil?
       @user.update_tracked_fields!(request)
       set_cookies(access_token_object: @user.create_new_auth_token, provider: @user.provider, user_name: @user.name)
-      redirect_to "https://#{Rails.configuration.fronted_hostname}/users"
+      redirect_to "https://#{Rails.configuration.frontend_hostname}/users"
     else
       render json: { 'Error': 'Something went wrong' }
     end
@@ -30,7 +30,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   def account_binding
     set_base_user
     redirect_path = check_binding_availability
-    redirect_url = "https://#{Rails.configuration.fronted_hostname}"
+    redirect_url = "https://#{Rails.configuration.frontend_hostname}"
     # redirect_path is nil means base user supports account binding
     if redirect_path.nil?
       redirect_url.insert(-1, '/users')
@@ -49,7 +49,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   end
 
   def failure
-    redirect_to "https://#{Rails.configuration.fronted_hostname}/login"
+    redirect_to "https://#{Rails.configuration.frontend_hostname}/login"
   end
 
   private
@@ -98,13 +98,23 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
   def set_cookies(access_token_object:, provider:, user_name:)
     common_fields = { expires: 1.hours, secure: true }
-    cookies.encrypted[:_uid] = common_fields.merge(value: access_token_object['uid'], httponly: true)
+    set_unencrypted_cookies(access_token_object, common_fields, provider, user_name)
+    set_encrypted_cookies(access_token_object, common_fields)
+  end
+
+  def set_unencrypted_cookies(access_token_object, common_fields, provider, user_name)
     cookies[:access_token]   = common_fields.merge(value: access_token_object['access-token'])
     cookies[:client]         = common_fields.merge(value: access_token_object['client'])
     cookies[:expiry]         = common_fields.merge(value: access_token_object['expiry'])
     cookies[:uid]            = common_fields.merge(value: access_token_object['uid'])
     cookies[:provider]       = common_fields.merge(value: provider)
-    cookies[:logged_in]      = common_fields.merge(value: true, httponly: true)
+    cookies[:logged_in]      = common_fields.merge(value: true)
     cookies[:name]           = common_fields.merge(value: user_name)
+  end
+
+  def set_encrypted_cookies(access_token_object, common_fields)
+    cookies.encrypted[:_logged_in] = common_fields.merge(value: true, httponly: true)
+    cookies.encrypted[:_client] = common_fields.merge(value: access_token_object['client'], httponly: true)
+    cookies.encrypted[:_uid] = common_fields.merge(value: access_token_object['uid'], httponly: true)
   end
 end

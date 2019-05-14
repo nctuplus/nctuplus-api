@@ -36,6 +36,7 @@ gem 'devise_token_auth'
 gem 'omniauth'
 gem 'omniauth-facebook'
 gem 'omniauth-google-oauth2'
+gem 'omniauth-nctu', git: 'https://github.com/vava24680/omniauth-nctu', branch: 'feature/custom-redirect-url'
 
 # Use faker to generate fake data
 gem 'faker', git: 'https://github.com/stympy/faker.git', branch: 'master'
