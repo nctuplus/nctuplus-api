@@ -20,7 +20,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     if !@user.nil?
       @user.update_tracked_fields!(request)
       set_cookies(access_token_object: @user.create_new_auth_token, provider: @user.provider, user_name: @user.name)
-      redirect_to "https://#{Rails.configuration.fronted_hostname}/users"
+      redirect_to "https://#{Rails.configuration.frontend_hostname}/users"
     else
       render json: { 'Error': 'Something went wrong' }
     end
@@ -30,7 +30,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   def account_binding
     set_base_user
     redirect_path = check_binding_availability
-    redirect_url = "https://#{Rails.configuration.fronted_hostname}"
+    redirect_url = "https://#{Rails.configuration.frontend_hostname}"
     # redirect_path is nil means base user supports account binding
     if redirect_path.nil?
       redirect_url.insert(-1, '/users')
@@ -49,7 +49,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   end
 
   def failure
-    redirect_to "https://#{Rails.configuration.fronted_hostname}/login"
+    redirect_to "https://#{Rails.configuration.frontend_hostname}/login"
   end
 
   private

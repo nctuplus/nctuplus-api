@@ -41,6 +41,6 @@ module NctuplusApi
     config.middleware.use ActionDispatch::Session::CookieStore
 
     # Custom configuration
-    config.fronted_hostname = 'plus.nctu.edu.tw'
+    config.frontend_hostname = 'plus.nctu.edu.tw'
   end
 end
