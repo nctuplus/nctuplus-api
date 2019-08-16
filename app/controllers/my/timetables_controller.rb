@@ -4,32 +4,49 @@ class My::TimetablesController < ApplicationController
 
   # GET /my/timetables
   def index
-    timetables = current_user.timetables
+    result = { data: [] }
+    current_user.timetables.each do |t|
+      next if t.courses.empty?
 
-    render json: timetables
-  end
-
-  # GET /my/timetables/1
-  def show
-    showable = @timetable.user == current_user || @timetable.shareable
-    render(json: @timetable, include: [:courses]) if showable
-  end
-
-  # POST /my/timetables
-  def create
-    @timetable = Timetable.new(user_id: current_user.id)
-
-    if @timetable.save
-      render json: @timetable, status: :created, location: my_timetable_url(@timetable)
-    else
-      render json: @timetable.errors, status: :unprocessable_entity
+      if t.courses.last.semester.year == params[:year] && t.courses.last.semester.term == params[:term]
+        result[:data] = t.courses.map(&:serializable_hash_for_timetable)
+        break
+      end
     end
+    render json: result
+  end
+
+  # PUT /my/timetables
+  def create
+    if params[:type] == 'add'
+      add_course
+    elsif params[:type] == 'delete'
+      delete_course
+    end
+    render json: {
+      updated_at: current_user.timetables.last.updated_at
+    }
+  end
+
+  def add_course
+    c = Course.where(code: params[:code]).last
+    t = current_user.timetables
+    if t.empty? ||
+      (!t.last.courses.empty? && t.last.courses.last.semester != c.semester)
+      t.create
+    end
+    t.last.courses.push(c)
+  end
+
+  def delete_course
+    current_user.timetables.last.courses.delete(Course.where(code: params[:code]).last)
   end
 
   # PATCH/PUT /my/timetables/1
   # 如果 current_user 不是此課表擁有者則回傳 403 forbidden
   def update
     return render json: {}, status: :forbidden unless @timetable.user == current_user
+
     type = params[:type].to_sym
     course_id = params[:course_id].try(:to_i)
     if type == :add
