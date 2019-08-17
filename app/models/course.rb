@@ -111,6 +111,21 @@ class Course < ApplicationRecord
     end
   end
 
+  def serializable_hash_for_timetable
+    {}.tap do |result|
+      result[:id] = id
+      result[:name] = permanent_course_name
+      result[:requirement_type] = requirement_type
+      result[:code] = code
+      result[:credit] = credit
+      result[:grade] = grade
+      result[:classroom] = classroom
+      result[:registration_count] = registration_count
+      result[:registration_limit] = registration_limit
+      result[:cos_time] = convert_time_slots
+    end
+  end
+
   # 找出此堂課的歷年開課紀錄(限定同開課老師)
   def related_courses
     courses = Course.includes(:teachers)
