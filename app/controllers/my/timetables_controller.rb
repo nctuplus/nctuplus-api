@@ -4,12 +4,13 @@ class My::TimetablesController < ApplicationController
 
   # GET /my/timetables
   def index
-    render json: {
+    result = {
       data: current_user.timetables
                         .select { |table| table.courses.first.semester.year == params[:year] }
                         .select { |table| table.courses.first.semester.term == params[:term] }
-                        .first.courses.map(&:serializable_hash_for_timetable)
     }
+    result[:data] = result[:data].first.courses.map(&:serializable_hash_for_timetable) unless result[:data].empty?
+    render json: result
   end
 
   # PUT /my/timetables
