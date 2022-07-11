@@ -28,7 +28,7 @@ gem 'ransack', '>= 2.0.0'
 gem 'kaminari'
 
 # Use carrierwave to manage file upload
-gem 'carrierwave', '~> 1.0'
+gem 'carrierwave', '~> 1.3'
 gem 'carrierwave-base64'
 
 # User Auth
